@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/app_state.dart';
-import '../../providers/navigation_provider.dart';
-import '../../models/user.dart';
-import '../../widgets/custom_button.dart';
-import '../../widgets/custom_input.dart';
+import '../../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -14,33 +10,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
-
-  Future<void> _login() async {
-    setState(() => _isLoading = true);
-
-    // Simulate API call
-    await Future.delayed(Duration(seconds: 1));
-
-    final user = User(
-      id: '1',
-      name: 'Jane Doe',
-      email: _emailController.text,
-      phone: '+1-555-0123',
-      address: '123 Main Street',
-      city: 'New York',
-      zipCode: '10001',
-      role: UserRole.customer,
-      isChef: false,
-    );
-
-    Provider.of<AppState>(context, listen: false).login(user);
-    setState(() => _isLoading = false);
-  }
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    final appState = Provider.of<AppState>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       body: Container(
@@ -68,44 +42,92 @@ class _LoginScreenState extends State<LoginScreen> {
                   Card(
                     child: Padding(
                       padding: EdgeInsets.all(24),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Sign In',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            Text(
+                              'Sign In',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 16),
+                            SizedBox(height: 16),
 
-                          CustomInput(
-                            controller: _emailController,
-                            hintText: 'Enter your email',
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          SizedBox(height: 16),
+                            TextFormField(
+                              controller: _emailController,
+                              decoration: InputDecoration(
+                                labelText: 'Email',
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your email';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 16),
 
-                          CustomInput(
-                            controller: _passwordController,
-                            hintText: 'Enter your password',
-                            obscureText: true,
-                          ),
-                          SizedBox(height: 24),
+                            TextFormField(
+                              controller: _passwordController,
+                              decoration: InputDecoration(
+                                labelText: 'Password',
+                                border: OutlineInputBorder(),
+                              ),
+                              obscureText: true,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your password';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 24),
 
-                          CustomButton(
-                            text: _isLoading ? 'Signing In...' : 'Sign In',
-                            onPressed: _isLoading ? null : _login,
-                          ),
+                            if (authProvider.error != null)
+                              Text(
+                                authProvider.error!,
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            SizedBox(height: 16),
 
-                          SizedBox(height: 24),
-                          TextButton(
-                            onPressed: () => context
-                                .read<NavigationProvider>()
-                                .navigateTo(AppPage.signup),
-                            child: Text('Don\'t have an account? Sign up'),
-                          ),
-                        ],
+                            ElevatedButton(
+                              onPressed: authProvider.isLoading
+                                  ? null
+                                  : () async {
+                                if (_formKey.currentState!.validate()) {
+                                  try {
+                                    await authProvider.login(
+                                      _emailController.text,
+                                      _passwordController.text,
+                                    );
+                                    Navigator.pushReplacementNamed(
+                                        context, '/home');
+                                  } catch (e) {
+                                    // Error is handled by provider
+                                  }
+                                }
+                              },
+                              child: authProvider.isLoading
+                                  ? CircularProgressIndicator()
+                                  : Text('Sign In'),
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size(double.infinity, 50),
+                              ),
+                            ),
+
+                            SizedBox(height: 24),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/signup');
+                              },
+                              child: Text('Don\'t have an account? Sign up'),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

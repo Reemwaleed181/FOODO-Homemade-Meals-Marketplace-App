@@ -1,35 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:foodo/screens/auth/login_screen.dart';
+import 'package:foodo/screens/auth/signup_screen.dart';
+import 'package:foodo/screens/home/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
-import 'providers/cart_provider.dart';
-import 'providers/meal_provider.dart';
-import 'providers/navigation_provider.dart';
-import 'models/app_state.dart';
-import 'screens/app_shell.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'services/api_service.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => CartProvider()),
-        ChangeNotifierProvider(create: (_) => MealProvider()),
-        ChangeNotifierProvider(create: (_) => NavigationProvider()),
-        ChangeNotifierProvider(create: (_) => AppState()),
       ],
       child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Homemade Meals',
-        theme: ThemeData(primarySwatch: Colors.orange),
-        home: const AppShell(),
+        title: 'HomeCook App',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: FutureBuilder<bool>(
+          future: _checkLoginStatus(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Scaffold(body: Center(child: CircularProgressIndicator()));
+            } else {
+              return snapshot.data == true ? HomeScreen() : LoginScreen();
+            }
+          },
+        ),
+        routes: {
+          '/login': (context) => LoginScreen(),
+          '/signup': (context) => SignupScreen(),
+          '/home': (context) => HomeScreen(),
+        },
       ),
     );
+  }
+
+  Future<bool> _checkLoginStatus() async {
+    final token = await ApiService.getToken();
+    return token != null;
   }
 }

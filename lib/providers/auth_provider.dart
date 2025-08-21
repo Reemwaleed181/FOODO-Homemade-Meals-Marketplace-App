@@ -1,78 +1,55 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../models/user.dart';
-import '../services/data_service.dart';
+import '../services/api_service.dart';
 
-class AuthProvider extends ChangeNotifier {
+class AuthProvider with ChangeNotifier {
   User? _user;
   bool _isLoading = false;
+  String? _error;
 
   User? get user => _user;
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _user != null;
+  String? get error => _error;
 
   Future<void> login(String email, String password) async {
     _isLoading = true;
+    _error = null;
     notifyListeners();
 
     try {
-      // Simulate login - replace with actual authentication
-      await Future.delayed(Duration(seconds: 1));
-
-      // Try to find user by email from JSON data
-      final dataService = DataService.instance;
-      final user = await dataService.getUserByEmail(email);
-
-      if (user != null) {
-        _user = user;
-      } else {
-        // Create a default user if not found in JSON
-        _user = User(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          name: "John Doe",
-          email: email,
-          phone: "+1234567890",
-          address: "123 Main St",
-          city: "New York",
-          zipCode: "10001",
-          role: UserRole.customer,
-          isChef: false,
-        );
-      }
-    } catch (e) {
-      throw Exception('Login failed: $e');
-    } finally {
+      final response = await ApiService.login(email, password);
+      _user = User.fromJson(response);
       _isLoading = false;
       notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
+      throw Exception('Login failed: $e');
     }
   }
 
   Future<void> signup(Map<String, String> userData) async {
     _isLoading = true;
+    _error = null;
     notifyListeners();
 
     try {
-      await Future.delayed(Duration(seconds: 1));
-
-      _user = User(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: userData['name']!,
-        email: userData['email']!,
-        phone: userData['phone']!,
-        address: userData['address']!,
-        city: userData['city']!,
-        zipCode: userData['zipCode']!,
-        role: UserRole.customer,
-        isChef: false,
-      );
-    } catch (e) {
-      throw Exception('Signup failed: $e');
-    } finally {
+      final response = await ApiService.register(userData);
+      _user = User.fromJson(response);
       _isLoading = false;
       notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
+      throw Exception('Signup failed: $e');
     }
   }
 
-  void logout() {
+  Future<void> logout() async {
+    await ApiService.deleteToken();
     _user = null;
     notifyListeners();
   }
@@ -82,42 +59,22 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleChefMode() {
-    if (_user == null) return;
-
-    UserRole newRole;
-    switch (_user!.role) {
-      case UserRole.customer:
-        newRole = UserRole.chef;
-        break;
-      case UserRole.chef:
-        newRole = UserRole.customer;
-        break;
-      case UserRole.both:
-        newRole = UserRole.customer;
-        break;
-    }
-
-    _user = _user!.copyWith(
-      role: newRole,
-      isChef: newRole == UserRole.chef || newRole == UserRole.both,
-    );
-
-    notifyListeners();
-  }
-
   Future<void> loadUser() async {
-    // For now, we'll load from JSON data
-    // In a real app, you'd load from secure storage
     try {
-      final dataService = DataService.instance;
-      final users = await dataService.getAllUsers();
-      if (users.isNotEmpty) {
-        _user = users.first; // Load first user as default
+      final token = await ApiService.getToken();
+      if (token != null) {
+        // يمكنك إضافة استدعاء API لتحميل بيانات المستخدم هنا
+        // final userData = await ApiService.getUserProfile();
+        // _user = User.fromJson(userData);
       }
     } catch (e) {
       print('Error loading user: $e');
     }
+    notifyListeners();
+  }
+
+  void clearError() {
+    _error = null;
     notifyListeners();
   }
 }
