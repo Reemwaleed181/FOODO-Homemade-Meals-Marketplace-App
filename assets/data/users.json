@@ -1,0 +1,74 @@
+{
+  "users": [
+    {
+      "id": "user-1",
+      "name": "Jane Doe",
+      "email": "jane.doe@email.com",
+      "phone": "+1-555-0123",
+      "address": "123 Main Street",
+      "city": "New York",
+      "zipCode": "10001",
+      "role": "customer",
+      "isChef": false,
+      "chefBio": null,
+      "chefRating": null,
+      "totalOrders": 12
+    },
+    {
+      "id": "user-2",
+      "name": "Sarah M.",
+      "email": "sarah.m@email.com",
+      "phone": "+1-555-0124",
+      "address": "456 Oak Avenue",
+      "city": "New York",
+      "zipCode": "10002",
+      "role": "both",
+      "isChef": true,
+      "chefBio": "Passionate home chef specializing in Mediterranean cuisine. Love creating healthy, flavorful dishes that bring people together.",
+      "chefRating": 4.8,
+      "totalOrders": 8
+    },
+    {
+      "id": "user-3",
+      "name": "Emma L.",
+      "email": "emma.l@email.com",
+      "phone": "+1-555-0125",
+      "address": "789 Pine Street",
+      "city": "New York",
+      "zipCode": "10003",
+      "role": "both",
+      "isChef": true,
+      "chefBio": "Italian food enthusiast with a love for comfort dishes. Every recipe tells a story from my grandmother's kitchen.",
+      "chefRating": 4.6,
+      "totalOrders": 15
+    },
+    {
+      "id": "user-4",
+      "name": "Lily C.",
+      "email": "lily.c@email.com",
+      "phone": "+1-555-0126",
+      "address": "321 Elm Street",
+      "city": "New York",
+      "zipCode": "10004",
+      "role": "both",
+      "isChef": true,
+      "chefBio": "Plant-based chef creating colorful, nutritious meals. Passionate about sustainable cooking and healthy living.",
+      "chefRating": 4.9,
+      "totalOrders": 23
+    },
+    {
+      "id": "user-5",
+      "name": "Priya S.",
+      "email": "priya.s@email.com",
+      "phone": "+1-555-0127",
+      "address": "654 Maple Drive",
+      "city": "New York",
+      "zipCode": "10005",
+      "role": "both",
+      "isChef": true,
+      "chefBio": "Traditional Indian cooking with a modern twist. Sharing family recipes that have been passed down for generations.",
+      "chefRating": 4.7,
+      "totalOrders": 18
+    }
+  ]
+}

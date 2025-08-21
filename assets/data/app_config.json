@@ -1,0 +1,103 @@
+{
+  "app": {
+    "name": "HomeCook",
+    "version": "1.0.0",
+    "description": "Delicious homemade meals made with love"
+  },
+  "delivery": {
+    "freeDeliveryThreshold": 25.0,
+    "deliveryFee": 3.99,
+    "estimatedTime": "30-45 minutes",
+    "expressDeliveryFee": 5.99,
+    "expressEstimatedTime": "15-25 minutes"
+  },
+  "tax": {
+    "rate": 0.08,
+    "description": "Sales tax"
+  },
+  "filters": [
+    {
+      "value": "all",
+      "label": "All Meals",
+      "icon": "restaurant"
+    },
+    {
+      "value": "vegetarian",
+      "label": "Vegetarian",
+      "icon": "eco"
+    },
+    {
+      "value": "vegan",
+      "label": "Vegan",
+      "icon": "eco"
+    },
+    {
+      "value": "gluten-free",
+      "label": "Gluten-Free",
+      "icon": "grain"
+    }
+  ],
+  "categories": [
+    {
+      "id": "mediterranean",
+      "name": "Mediterranean",
+      "icon": "restaurant",
+      "color": "#FF6B35"
+    },
+    {
+      "id": "asian",
+      "name": "Asian",
+      "icon": "restaurant",
+      "color": "#4CAF50"
+    },
+    {
+      "id": "italian",
+      "name": "Italian",
+      "icon": "restaurant",
+      "color": "#2196F3"
+    },
+    {
+      "id": "indian",
+      "name": "Indian",
+      "icon": "restaurant",
+      "color": "#FF9800"
+    },
+    {
+      "id": "healthy",
+      "name": "Healthy",
+      "icon": "favorite",
+      "color": "#4CAF50"
+    },
+    {
+      "id": "comfort",
+      "name": "Comfort Food",
+      "icon": "home",
+      "color": "#9C27B0"
+    }
+  ],
+  "paymentMethods": [
+    {
+      "id": "card",
+      "name": "Credit/Debit Card",
+      "description": "Visa, Mastercard, American Express",
+      "icon": "credit_card"
+    },
+    {
+      "id": "paypal",
+      "name": "PayPal",
+      "description": "Pay with your PayPal account",
+      "icon": "payment"
+    },
+    {
+      "id": "apple-pay",
+      "name": "Apple Pay",
+      "description": "Touch ID or Face ID required",
+      "icon": "phone_iphone"
+    }
+  ],
+  "contact": {
+    "supportEmail": "support@homecook.com",
+    "supportPhone": "+1-555-0123",
+    "businessHours": "Monday - Sunday: 8:00 AM - 10:00 PM"
+  }
+}
