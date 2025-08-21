@@ -36,6 +36,11 @@ class AppState with ChangeNotifier {
     notifyListeners();
   }
 
+  // Public: Load initial data from JSON
+  Future<void> loadInitialData() async {
+    await _loadMealsData();
+  }
+
   // Load meals data from JSON
   Future<void> _loadMealsData() async {
     _isLoading = true;

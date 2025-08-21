@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
+import '../../providers/navigation_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_input.dart';
 import '../../models/user.dart';
-import '../../widgets/bottom_navigation.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -86,7 +86,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               SizedBox(height: 16),
               GestureDetector(
-                onTap: () => appState.navigateTo('login'),
+                onTap:
+                    () => context.read<NavigationProvider>().navigateTo(
+                      AppPage.login,
+                    ),
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(
@@ -399,7 +402,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             onTap:
                                 () =>
                                     user.isChef
-                                        ? appState.navigateTo('chef-dashboard')
+                                        ? context
+                                            .read<NavigationProvider>()
+                                            .navigateTo(AppPage.chefDashboard)
                                         : appState.toggleChefMode(),
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -460,13 +465,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _QuickActionTile(
                       icon: Icons.local_shipping,
                       title: 'Manage Delivery Addresses',
-                      onTap: () => appState.navigateTo('delivery'),
+                      onTap:
+                          () => context.read<NavigationProvider>().navigateTo(
+                            AppPage.delivery,
+                          ),
                     ),
                     SizedBox(height: 12),
                     _QuickActionTile(
                       icon: Icons.credit_card,
                       title: 'Payment Methods',
-                      onTap: () => appState.navigateTo('payment'),
+                      onTap:
+                          () => context.read<NavigationProvider>().navigateTo(
+                            AppPage.payment,
+                          ),
                     ),
                   ],
                 ),
@@ -477,7 +488,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigation(),
     );
   }
 
@@ -521,14 +531,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildViewForm(User user) {
     return Column(
       children: [
-        _InfoRow(icon: Icons.email, label: 'Email Address', value: user.email),
+        _ReadOnlyField(label: 'Full Name', value: user.name),
         SizedBox(height: 16),
-        _InfoRow(icon: Icons.phone, label: 'Phone Number', value: user.phone),
+        _ReadOnlyField(label: 'Email', value: user.email),
         SizedBox(height: 16),
-        _InfoRow(
-          icon: Icons.location_on,
-          label: 'Delivery Address',
-          value: '${user.address}, ${user.city} ${user.zipCode}',
+        _ReadOnlyField(label: 'Phone Number', value: user.phone),
+        SizedBox(height: 16),
+        _ReadOnlyField(label: 'Address', value: user.address),
+        SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(child: _ReadOnlyField(label: 'City', value: user.city)),
+            SizedBox(width: 16),
+            Expanded(
+              child: _ReadOnlyField(label: 'ZIP Code', value: user.zipCode),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ReadOnlyField extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _ReadOnlyField({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 4),
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(value),
         ),
       ],
     );
@@ -550,7 +595,7 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
@@ -560,66 +605,15 @@ class _StatCard extends StatelessWidget {
             Text(
               value,
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
             ),
             SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
+            Text(label, style: TextStyle(fontSize: 12, color: Colors.black54)),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-
-  const _InfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.grey[600], size: 20),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                Text(
-                  label,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -643,23 +637,16 @@ class _QuickActionTile extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.grey[50],
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[200]!),
         ),
         child: Row(
           children: [
-            Icon(icon, color: Colors.grey[600], size: 20),
+            Icon(icon, color: Colors.grey[700]),
             SizedBox(width: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Spacer(),
-            Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 16),
+            Expanded(child: Text(title)),
+            Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey[400]),
           ],
         ),
       ),

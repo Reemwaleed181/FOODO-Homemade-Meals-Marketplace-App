@@ -25,14 +25,11 @@ class NavigationProvider extends ChangeNotifier {
 
   void navigateTo(AppPage page, {String? mealId}) {
     _currentPage = page;
-    if (mealId != null) {
-      _selectedMealId = mealId;
-    }
+    _selectedMealId = mealId;
     notifyListeners();
   }
 
   void navigateBack() {
-    // Implement back navigation logic based on current page
     switch (_currentPage) {
       case AppPage.login:
       case AppPage.signup:

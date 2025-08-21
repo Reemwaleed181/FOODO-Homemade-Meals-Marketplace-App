@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
+import '../../providers/navigation_provider.dart';
 import '../../models/meal.dart';
 import '../../models/user.dart';
 import '../../widgets/custom_button.dart';
@@ -146,7 +147,7 @@ class _SellMealScreenState extends State<SellMealScreen> {
 
     await Future.delayed(Duration(seconds: 2));
     if (mounted) {
-      appState.navigateTo('chef-dashboard');
+      context.read<NavigationProvider>().navigateTo(AppPage.chefDashboard);
     }
   }
 
@@ -169,7 +170,7 @@ class _SellMealScreenState extends State<SellMealScreen> {
               SizedBox(height: 24),
               CustomButton(
                 text: 'Become a Chef',
-                onPressed: () => appState.navigateTo('profile'),
+                onPressed: () => context.read<NavigationProvider>().navigateTo(AppPage.profile),
               ),
             ],
           ),
@@ -199,7 +200,7 @@ class _SellMealScreenState extends State<SellMealScreen> {
         title: Text('Add New Meal'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () => appState.navigateTo('chef-dashboard'),
+          onPressed: () => context.read<NavigationProvider>().navigateTo(AppPage.chefDashboard),
         ),
       ),
       body: SingleChildScrollView(

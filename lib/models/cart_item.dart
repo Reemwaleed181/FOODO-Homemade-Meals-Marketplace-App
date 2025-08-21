@@ -19,6 +19,8 @@ class CartItem {
     required this.portionSize,
   });
 
+  double get totalPrice => price * quantity;
+
   CartItem copyWith({
     String? id,
     String? mealId,

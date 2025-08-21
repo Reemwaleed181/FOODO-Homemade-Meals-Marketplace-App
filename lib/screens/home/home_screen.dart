@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
+import '../../providers/navigation_provider.dart';
 import '../../models/meal.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_input.dart';
 import '../../widgets/custom_badge.dart';
 import '../../widgets/image_with_fallback.dart';
-import '../../widgets/bottom_navigation.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -283,13 +283,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigation(),
     );
   }
 
   Widget _buildTrendingMealCard(Meal meal, AppState appState) {
     return GestureDetector(
-      onTap: () => appState.navigateTo('meal-detail', mealId: meal.id),
+      onTap:
+          () => context.read<NavigationProvider>().navigateTo(
+            AppPage.mealDetail,
+            mealId: meal.id,
+          ),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -414,7 +417,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildMealCard(Meal meal, AppState appState) {
     return GestureDetector(
-      onTap: () => appState.navigateTo('meal-detail', mealId: meal.id),
+      onTap:
+          () => context.read<NavigationProvider>().navigateTo(
+            AppPage.mealDetail,
+            mealId: meal.id,
+          ),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,

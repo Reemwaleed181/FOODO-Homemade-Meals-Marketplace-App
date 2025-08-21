@@ -4,13 +4,16 @@ import 'providers/auth_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/meal_provider.dart';
 import 'providers/navigation_provider.dart';
+import 'models/app_state.dart';
 import 'screens/app_shell.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -19,20 +22,13 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => MealProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        ChangeNotifierProvider(create: (_) => AppState()),
       ],
       child: MaterialApp(
-        title: 'HomeCook',
-        theme: ThemeData(
-          primaryColor: Color(0xFFFF6B35),
-          scaffoldBackgroundColor: Colors.white,
-          fontFamily: 'Inter',
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Color(0xFFFF6B35),
-            brightness: Brightness.light,
-          ),
-        ),
-        home: AppShell(),
         debugShowCheckedModeBanner: false,
+        title: 'Homemade Meals',
+        theme: ThemeData(primarySwatch: Colors.orange),
+        home: const AppShell(),
       ),
     );
   }

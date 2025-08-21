@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
 import '../providers/navigation_provider.dart';
+import '../providers/auth_provider.dart';
 import '../providers/meal_provider.dart';
 import '../models/user.dart';
 import '../widgets/bottom_navigation.dart';
 import 'welcome_screen.dart';
+import 'auth/login_screen.dart';
+import 'auth/signup_screen.dart';
 import 'home/home_screen.dart';
 import 'home/meal_detail_screen.dart';
-import 'profile/profile_screen.dart';
 import 'cart/cart_screen.dart';
 import 'cart/checkout_screen.dart';
 import 'cart/order_confirmation_screen.dart';
+import 'profile/profile_screen.dart';
+import 'profile/delivery_screen.dart';
+import 'profile/payment_screen.dart';
+import 'chef/sell_meal_screen.dart';
+import 'chef/chef_dashboard_screen.dart';
+import '../models/app_state.dart';
 
 class AppShell extends StatefulWidget {
+  const AppShell({super.key});
+
   @override
   _AppShellState createState() => _AppShellState();
 }
@@ -22,10 +31,10 @@ class _AppShellState extends State<AppShell> {
   @override
   void initState() {
     super.initState();
-    // Load user data and meals on app start
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AuthProvider>().loadUser();
       context.read<MealProvider>().loadMeals();
+      context.read<AppState>().loadInitialData();
     });
   }
 
@@ -37,44 +46,44 @@ class _AppShellState extends State<AppShell> {
         final user = authProvider.user;
 
         return Scaffold(
-          body: _buildCurrentScreen(currentPage, user),
+          body: _buildCurrentScreen(currentPage),
           bottomNavigationBar:
-              _shouldShowBottomNav(currentPage, user)
-                  ? BottomNavigation()
-                  : null,
+          _shouldShowBottomNav(currentPage, user) ?  BottomNavigation() : null,
         );
       },
     );
   }
 
-  Widget _buildCurrentScreen(AppPage currentPage, User? user) {
+  Widget _buildCurrentScreen(AppPage currentPage) {
     switch (currentPage) {
       case AppPage.welcome:
         return WelcomeScreen();
       case AppPage.login:
-        return _buildLoginScreen();
+        return  LoginScreen();
       case AppPage.signup:
-        return _buildSignupScreen();
+        return  SignupScreen();
       case AppPage.home:
-        return HomeScreen();
+        return  HomeScreen();
       case AppPage.mealDetail:
-        return MealDetailScreen();
+        return const MealDetailScreen(); // بدون mealId
       case AppPage.profile:
-        return ProfileScreen();
+        return  ProfileScreen();
       case AppPage.delivery:
-        return _buildDeliveryScreen();
+        return  DeliveryScreen();
       case AppPage.payment:
-        return _buildPaymentScreen();
+        return  PaymentScreen();
       case AppPage.cart:
-        return CartScreen();
+        return  CartScreen();
       case AppPage.checkout:
-        return CheckoutScreen();
+        return const CheckoutScreen();
+      case AppPage.orderConfirmation:
+        return  OrderConfirmationScreen();
       case AppPage.sellMeal:
-        return _buildSellMealScreen();
+        return  SellMealScreen();
       case AppPage.chefDashboard:
-        return _buildChefDashboardScreen();
+        return  ChefDashboardScreen();
       default:
-        return WelcomeScreen();
+        return  WelcomeScreen();
     }
   }
 
@@ -87,137 +96,5 @@ class _AppShellState extends State<AppShell> {
       AppPage.checkout,
       AppPage.orderConfirmation,
     ].contains(currentPage);
-  }
-
-  // Placeholder screens - these will be implemented later
-  Widget _buildLoginScreen() {
-    return Scaffold(
-      appBar: AppBar(title: Text('Login')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Login Screen - Coming Soon'),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Simulate login
-                context.read<AuthProvider>().login(
-                  'test@email.com',
-                  'password',
-                );
-                context.read<NavigationProvider>().navigateTo(AppPage.home);
-              },
-              child: Text('Login as Test User'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSignupScreen() {
-    return Scaffold(
-      appBar: AppBar(title: Text('Sign Up')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Sign Up Screen - Coming Soon'),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                context.read<NavigationProvider>().navigateTo(AppPage.login);
-              },
-              child: Text('Back to Login'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDeliveryScreen() {
-    return Scaffold(
-      appBar: AppBar(title: Text('Delivery')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Delivery Screen - Coming Soon'),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                context.read<NavigationProvider>().navigateTo(AppPage.home);
-              },
-              child: Text('Back to Home'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPaymentScreen() {
-    return Scaffold(
-      appBar: AppBar(title: Text('Payment')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Payment Screen - Coming Soon'),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                context.read<NavigationProvider>().navigateTo(AppPage.home);
-              },
-              child: Text('Back to Home'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSellMealScreen() {
-    return Scaffold(
-      appBar: AppBar(title: Text('Sell Meal')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Sell Meal Screen - Coming Soon'),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                context.read<NavigationProvider>().navigateTo(AppPage.home);
-              },
-              child: Text('Back to Home'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildChefDashboardScreen() {
-    return Scaffold(
-      appBar: AppBar(title: Text('Chef Dashboard')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Chef Dashboard - Coming Soon'),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                context.read<NavigationProvider>().navigateTo(AppPage.home);
-              },
-              child: Text('Back to Home'),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
