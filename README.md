@@ -68,3 +68,4 @@ HomePlate is a comprehensive Flutter mobile application that connects food lover
 * **Role Flexibility**: Seamless switching between customer and chef experiences
 * **Community Focus**: Emphasis on local chefs and neighborhood meal sharing
 * **Complete E-commerce**: Full purchase flow from discovery to delivery
+ززززززززز
