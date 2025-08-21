@@ -6,6 +6,7 @@ import '../../models/cart_item.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_badge.dart';
 import '../../widgets/custom_input.dart';
+import '../../widgets/bottom_navigation.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -53,10 +54,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   child: Row(
                     children: [
                       GestureDetector(
-                        onTap:
-                            () => context.read<NavigationProvider>().navigateTo(
-                              AppPage.cart,
-                            ),
+                        onTap: () => context.read<NavigationProvider>().navigateTo(AppPage.cart),
                         child: Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 12,
@@ -152,10 +150,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                     ],
                                   ),
                                   GestureDetector(
-                                    onTap:
-                                        () => context
-                                            .read<NavigationProvider>()
-                                            .navigateTo(AppPage.delivery),
+                                    onTap: () => context.read<NavigationProvider>().navigateTo(AppPage.delivery),
                                     child: Container(
                                       padding: EdgeInsets.symmetric(
                                         horizontal: 8,
@@ -220,6 +215,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         SizedBox(height: 16),
 
                         // ... existing content remains unchanged ...
+
                         SizedBox(height: 24),
 
                         // Continue to Payment Button
@@ -262,6 +258,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ],
             ),
           ),
+          bottomNavigationBar: BottomNavigation(),
         );
       },
     );

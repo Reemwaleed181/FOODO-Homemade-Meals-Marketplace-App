@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
-import '../../providers/navigation_provider.dart';
 import '../../models/cart_item.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_badge.dart';
 import '../../widgets/image_with_fallback.dart';
+import '../../widgets/bottom_navigation.dart';
 
 class CartScreen extends StatelessWidget {
   @override
@@ -38,10 +38,7 @@ class CartScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 24),
                 GestureDetector(
-                  onTap:
-                      () => context.read<NavigationProvider>().navigateTo(
-                        AppPage.home,
-                      ),
+                  onTap: () => appState.navigateTo('home'),
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     decoration: BoxDecoration(
@@ -61,6 +58,7 @@ class CartScreen extends StatelessWidget {
             ),
           ),
         ),
+        bottomNavigationBar: BottomNavigation(),
       );
     }
 
@@ -151,10 +149,7 @@ class CartScreen extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: GestureDetector(
-                onTap:
-                    () => context.read<NavigationProvider>().navigateTo(
-                      AppPage.home,
-                    ),
+                onTap: () => appState.navigateTo('home'),
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
@@ -188,6 +183,7 @@ class CartScreen extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigation(),
     );
   }
 }
@@ -501,10 +497,7 @@ class _OrderSummary extends StatelessWidget {
 
           // Checkout Button
           GestureDetector(
-            onTap:
-                () => context.read<NavigationProvider>().navigateTo(
-                  AppPage.checkout,
-                ),
+            onTap: () => appState.navigateTo('checkout'),
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 16),
@@ -528,6 +521,21 @@ class _OrderSummary extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+
+          SizedBox(height: 12),
+
+          // Delivery Estimate
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.local_shipping, color: Colors.orange, size: 16),
+              SizedBox(width: 4),
+              Text(
+                'Estimated delivery: 30-45 minutes',
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+            ],
           ),
         ],
       ),
