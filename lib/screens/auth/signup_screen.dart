@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
+import '../../providers/navigation_provider.dart';
 import '../../models/user.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_input.dart';
@@ -186,11 +187,11 @@ class _SignupScreenState extends State<SignupScreen> {
 
                 SizedBox(height: 24),
                 TextButton(
-                  onPressed: () => appState.navigateTo('login'),
+                  onPressed: () => context.read<NavigationProvider>().navigateTo(AppPage.login),
                   child: Text('Already have an account? Sign in'),
                 ),
                 TextButton(
-                  onPressed: () => appState.navigateTo('welcome'),
+                  onPressed: () => context.read<NavigationProvider>().navigateTo(AppPage.welcome),
                   child: Text('← Back to Home'),
                 ),
               ],

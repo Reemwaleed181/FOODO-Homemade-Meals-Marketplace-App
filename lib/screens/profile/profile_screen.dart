@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
+import '../../providers/navigation_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_input.dart';
 import '../../models/user.dart';
@@ -86,7 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               SizedBox(height: 16),
               GestureDetector(
-                onTap: () => appState.navigateTo('login'),
+                onTap: () => context.read<NavigationProvider>().navigateTo(AppPage.login),
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(
@@ -396,11 +397,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           GestureDetector(
-                            onTap:
-                                () =>
-                                    user.isChef
-                                        ? appState.navigateTo('chef-dashboard')
-                                        : appState.toggleChefMode(),
+                            onTap: () => user.isChef
+                                ? context.read<NavigationProvider>().navigateTo(AppPage.chefDashboard)
+                                : appState.toggleChefMode(),
                             child: Container(
                               padding: EdgeInsets.symmetric(
                                 horizontal: 12,
@@ -460,13 +459,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _QuickActionTile(
                       icon: Icons.local_shipping,
                       title: 'Manage Delivery Addresses',
-                      onTap: () => appState.navigateTo('delivery'),
+                      onTap: () => context.read<NavigationProvider>().navigateTo(AppPage.delivery),
                     ),
                     SizedBox(height: 12),
                     _QuickActionTile(
                       icon: Icons.credit_card,
                       title: 'Payment Methods',
-                      onTap: () => appState.navigateTo('payment'),
+                      onTap: () => context.read<NavigationProvider>().navigateTo(AppPage.payment),
                     ),
                   ],
                 ),

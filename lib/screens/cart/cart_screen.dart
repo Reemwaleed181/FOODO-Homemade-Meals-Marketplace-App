@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
+import '../../providers/navigation_provider.dart';
 import '../../models/cart_item.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_badge.dart';
@@ -38,7 +39,7 @@ class CartScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 24),
                 GestureDetector(
-                  onTap: () => appState.navigateTo('home'),
+                  onTap: () => context.read<NavigationProvider>().navigateTo(AppPage.home),
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     decoration: BoxDecoration(
@@ -149,7 +150,7 @@ class CartScreen extends StatelessWidget {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: GestureDetector(
-                onTap: () => appState.navigateTo('home'),
+                onTap: () => context.read<NavigationProvider>().navigateTo(AppPage.home),
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(

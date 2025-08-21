@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
+import '../../providers/navigation_provider.dart';
 import '../../widgets/bottom_navigation.dart';
 
 class OrderConfirmationScreen extends StatelessWidget {
@@ -184,7 +185,7 @@ class OrderConfirmationScreen extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       appState.clearCart();
-                      appState.navigateTo('home');
+                      context.read<NavigationProvider>().navigateTo(AppPage.home);
                     },
                     child: Container(
                       width: double.infinity,
@@ -209,7 +210,7 @@ class OrderConfirmationScreen extends StatelessWidget {
 
                   // Track Order Button
                   GestureDetector(
-                    onTap: () => appState.navigateTo('delivery'),
+                    onTap: () => context.read<NavigationProvider>().navigateTo(AppPage.delivery),
                     child: Container(
                       width: double.infinity,
                       padding: EdgeInsets.symmetric(vertical: 16),

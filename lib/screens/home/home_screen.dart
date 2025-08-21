@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
+import '../../providers/navigation_provider.dart';
 import '../../models/meal.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_input.dart';
@@ -289,7 +290,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildTrendingMealCard(Meal meal, AppState appState) {
     return GestureDetector(
-      onTap: () => appState.navigateTo('meal-detail', mealId: meal.id),
+      onTap: () => context
+          .read<NavigationProvider>()
+          .navigateTo(AppPage.mealDetail, mealId: meal.id),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -414,7 +417,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildMealCard(Meal meal, AppState appState) {
     return GestureDetector(
-      onTap: () => appState.navigateTo('meal-detail', mealId: meal.id),
+      onTap: () => context
+          .read<NavigationProvider>()
+          .navigateTo(AppPage.mealDetail, mealId: meal.id),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,

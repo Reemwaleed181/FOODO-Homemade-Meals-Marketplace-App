@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
+import '../../providers/navigation_provider.dart';
 import '../../models/user.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_input.dart';
@@ -69,7 +70,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: EdgeInsets.all(24),
                       child: Column(
                         children: [
-                          Text('Sign In', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                          Text(
+                            'Sign In',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           SizedBox(height: 16),
 
                           CustomInput(
@@ -93,7 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           SizedBox(height: 24),
                           TextButton(
-                            onPressed: () => appState.navigateTo('signup'),
+                            onPressed: () => context
+                                .read<NavigationProvider>()
+                                .navigateTo(AppPage.signup),
                             child: Text('Don\'t have an account? Sign up'),
                           ),
                         ],
