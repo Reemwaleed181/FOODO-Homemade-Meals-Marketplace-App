@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
+import '../../providers/navigation_provider.dart';
 import '../../models/cart_item.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_badge.dart';
@@ -38,7 +39,10 @@ class CartScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 24),
                 GestureDetector(
-                  onTap: () => appState.navigateTo('home'),
+                  onTap:
+                      () => context.read<NavigationProvider>().navigateTo(
+                        AppPage.home,
+                      ),
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     decoration: BoxDecoration(
@@ -70,117 +74,130 @@ class CartScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: EdgeInsets.all(20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Shopping Cart',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Shopping Cart',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        '${cartItems.length} item${cartItems.length == 1 ? '' : 's'} in your cart',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                  GestureDetector(
-                    onTap: () => appState.clearCart(),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red[50],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red[200]!),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.delete_outline,
-                            color: Colors.red,
-                            size: 16,
+                        SizedBox(height: 4),
+                        Text(
+                          '${cartItems.length} item${cartItems.length == 1 ? '' : 's'} in your cart',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
                           ),
-                          SizedBox(width: 4),
-                          Text(
-                            'Clear Cart',
-                            style: TextStyle(
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () => appState.clearCart(),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red[200]!),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.delete_outline,
                               color: Colors.red,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                              size: 16,
                             ),
-                          ),
-                        ],
+                            SizedBox(width: 4),
+                            Text(
+                              'Clear Cart',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            // Cart Items
-            Expanded(
-              child: ListView.builder(
+              // Cart Items
+              Container(
+                height: 300, // Fixed height for cart items
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: cartItems.length,
+                  itemBuilder: (context, index) {
+                    final item = cartItems[index];
+                    return _CartItemCard(item: item);
+                  },
+                ),
+              ),
+
+              // Continue Shopping
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
-                itemCount: cartItems.length,
-                itemBuilder: (context, index) {
-                  final item = cartItems[index];
-                  return _CartItemCard(item: item);
-                },
-              ),
-            ),
-
-            // Continue Shopping
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: GestureDetector(
-                onTap: () => appState.navigateTo('home'),
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: Colors.grey[200]!)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.arrow_back, size: 16, color: Colors.grey[600]),
-                      SizedBox(width: 8),
-                      Text(
-                        'Continue Shopping',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
+                child: GestureDetector(
+                  onTap:
+                      () => context.read<NavigationProvider>().navigateTo(
+                        AppPage.home,
                       ),
-                    ],
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: Colors.grey[200]!)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.arrow_back,
+                          size: 16,
+                          color: Colors.grey[600],
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Continue Shopping',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // Order Summary
-            _OrderSummary(
-              cartTotal: appState.cartTotal,
-              deliveryFee: deliveryFee,
-              tax: tax,
-              finalTotal: finalTotal,
-            ),
-          ],
+              // Order Summary
+              _OrderSummary(
+                cartTotal: appState.cartTotal,
+                deliveryFee: deliveryFee,
+                tax: tax,
+                finalTotal: finalTotal,
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigation(),
@@ -497,7 +514,10 @@ class _OrderSummary extends StatelessWidget {
 
           // Checkout Button
           GestureDetector(
-            onTap: () => appState.navigateTo('checkout'),
+            onTap:
+                () => context.read<NavigationProvider>().navigateTo(
+                  AppPage.checkout,
+                ),
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 16),

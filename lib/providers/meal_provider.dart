@@ -26,12 +26,15 @@ class MealProvider extends ChangeNotifier {
     // Apply search filter
     if (_searchQuery.isNotEmpty) {
       final lowercaseQuery = _searchQuery.toLowerCase();
-      meals = meals.where((meal) {
-        return meal.name.toLowerCase().contains(lowercaseQuery) ||
-               meal.chef.toLowerCase().contains(lowercaseQuery) ||
-               meal.tags.any((tag) => tag.toLowerCase().contains(lowercaseQuery)) ||
-               meal.description.toLowerCase().contains(lowercaseQuery);
-      }).toList();
+      meals =
+          meals.where((meal) {
+            return meal.name.toLowerCase().contains(lowercaseQuery) ||
+                meal.chef.toLowerCase().contains(lowercaseQuery) ||
+                meal.tags.any(
+                  (tag) => tag.toLowerCase().contains(lowercaseQuery),
+                ) ||
+                meal.description.toLowerCase().contains(lowercaseQuery);
+          }).toList();
     }
 
     // Apply dietary filter
@@ -55,7 +58,8 @@ class MealProvider extends ChangeNotifier {
   // Load all meals from JSON data
   Future<void> loadMeals() async {
     _isLoading = true;
-    notifyListeners();
+    // Use microtask to avoid calling notifyListeners during build
+    Future.microtask(() => notifyListeners());
 
     try {
       final dataService = DataService.instance;
@@ -66,7 +70,8 @@ class MealProvider extends ChangeNotifier {
       print('Error loading meals: $e');
     } finally {
       _isLoading = false;
-      notifyListeners();
+      // Use microtask to avoid calling notifyListeners during build
+      Future.microtask(() => notifyListeners());
     }
   }
 
@@ -126,9 +131,13 @@ class MealProvider extends ChangeNotifier {
 
   // Get meals by category
   List<Meal> getMealsByCategory(String category) {
-    return _allMeals.where((meal) => 
-      meal.tags.any((tag) => tag.toLowerCase() == category.toLowerCase())
-    ).toList();
+    return _allMeals
+        .where(
+          (meal) => meal.tags.any(
+            (tag) => tag.toLowerCase() == category.toLowerCase(),
+          ),
+        )
+        .toList();
   }
 
   // Get popular meals (by order count)

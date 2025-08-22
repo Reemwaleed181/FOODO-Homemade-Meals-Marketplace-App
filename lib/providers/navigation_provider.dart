@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 enum AppPage {
   welcome,
   login,
   signup,
+  verification,
   home,
   mealDetail,
   profile,
@@ -16,40 +17,26 @@ enum AppPage {
   chefDashboard,
 }
 
-class NavigationProvider extends ChangeNotifier {
+class NavigationProvider with ChangeNotifier {
   AppPage _currentPage = AppPage.welcome;
-  String? _selectedMealId;
+  Map<String, dynamic> _pageData = {};
 
   AppPage get currentPage => _currentPage;
-  String? get selectedMealId => _selectedMealId;
+  Map<String, dynamic> get pageData => _pageData;
+  String? get selectedMealId => _pageData['mealId'];
 
-  void navigateTo(AppPage page, {String? mealId}) {
+  void navigateTo(AppPage page, {Map<String, dynamic>? data}) {
     _currentPage = page;
-    _selectedMealId = mealId;
+    _pageData = data ?? {};
+    if (kDebugMode) {
+      print('Navigated to: $page with data: $_pageData');
+    }
     notifyListeners();
   }
 
-  void navigateBack() {
-    switch (_currentPage) {
-      case AppPage.login:
-      case AppPage.signup:
-        _currentPage = AppPage.welcome;
-        break;
-      case AppPage.mealDetail:
-      case AppPage.profile:
-      case AppPage.delivery:
-      case AppPage.payment:
-      case AppPage.cart:
-      case AppPage.sellMeal:
-      case AppPage.chefDashboard:
-        _currentPage = AppPage.home;
-        break;
-      case AppPage.checkout:
-        _currentPage = AppPage.cart;
-        break;
-      default:
-        _currentPage = AppPage.home;
+  void goBack() {
+    if (_currentPage != AppPage.welcome) {
+      navigateTo(AppPage.welcome);
     }
-    notifyListeners();
   }
 }

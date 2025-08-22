@@ -13,6 +13,7 @@ class User {
   final String? chefBio;
   final double? chefRating;
   final int? totalOrders;
+  final bool isVerified;
 
   User({
     required this.id,
@@ -27,6 +28,7 @@ class User {
     this.chefBio,
     this.chefRating,
     this.totalOrders,
+    this.isVerified = false,
   });
 
   User copyWith({
@@ -42,6 +44,7 @@ class User {
     String? chefBio,
     double? chefRating,
     int? totalOrders,
+    bool? isVerified,
   }) {
     return User(
       id: id ?? this.id,
@@ -56,6 +59,7 @@ class User {
       chefBio: chefBio ?? this.chefBio,
       chefRating: chefRating ?? this.chefRating,
       totalOrders: totalOrders ?? this.totalOrders,
+      isVerified: isVerified ?? this.isVerified,
     );
   }
 
@@ -73,26 +77,28 @@ class User {
       'chefBio': chefBio,
       'chefRating': chefRating,
       'totalOrders': totalOrders,
+      'isVerified': isVerified,
     };
   }
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
-      phone: json['phone'],
-      address: json['address'],
-      city: json['city'],
-      zipCode: json['zipCode'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      phone: json['phone'] ?? '',
+      address: json['address'] ?? '',
+      city: json['city'] ?? '',
+      zipCode: json['zipCode'] ?? '',
       role: UserRole.values.firstWhere(
-            (e) => e.toString() == 'UserRole.${json['role']}',
+        (e) => e.toString() == 'UserRole.${json['role']}',
         orElse: () => UserRole.customer,
       ),
-      isChef: json['isChef'],
+      isChef: json['isChef'] ?? false,
       chefBio: json['chefBio'],
       chefRating: json['chefRating']?.toDouble(),
       totalOrders: json['totalOrders'],
+      isVerified: json['isVerified'] ?? false,
     );
   }
 }

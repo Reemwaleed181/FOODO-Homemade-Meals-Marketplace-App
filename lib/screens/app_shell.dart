@@ -8,6 +8,7 @@ import '../widgets/bottom_navigation.dart';
 import 'welcome_screen.dart';
 import 'auth/login_screen.dart';
 import 'auth/signup_screen.dart';
+import 'auth/verification_screen.dart';
 import 'home/home_screen.dart';
 import 'home/meal_detail_screen.dart';
 import 'cart/cart_screen.dart';
@@ -32,10 +33,18 @@ class _AppShellState extends State<AppShell> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuthProvider>().loadUser();
-      context.read<MealProvider>().loadMeals();
-      context.read<AppState>().loadInitialData();
+      _initializeAppData();
     });
+  }
+
+  void _initializeAppData() {
+    final authProvider = context.read<AuthProvider>();
+    final mealProvider = context.read<MealProvider>();
+    final appState = context.read<AppState>();
+
+    authProvider.loadUser();
+    mealProvider.loadMeals();
+    appState.loadInitialData();
   }
 
   @override
@@ -43,56 +52,66 @@ class _AppShellState extends State<AppShell> {
     return Consumer2<NavigationProvider, AuthProvider>(
       builder: (context, navigationProvider, authProvider, child) {
         final currentPage = navigationProvider.currentPage;
+        final pageData = navigationProvider.pageData;
         final user = authProvider.user;
 
         return Scaffold(
-          body: _buildCurrentScreen(currentPage),
+          body: _buildCurrentScreen(currentPage, pageData),
           bottomNavigationBar:
-          _shouldShowBottomNav(currentPage, user) ?  BottomNavigation() : null,
+              _shouldShowBottomNav(currentPage, user)
+                  ? const BottomNavigation()
+                  : null,
         );
       },
     );
   }
 
-  Widget _buildCurrentScreen(AppPage currentPage) {
+  Widget _buildCurrentScreen(
+    AppPage currentPage,
+    Map<String, dynamic> pageData,
+  ) {
     switch (currentPage) {
       case AppPage.welcome:
         return WelcomeScreen();
       case AppPage.login:
-        return  LoginScreen();
+        return LoginScreen();
       case AppPage.signup:
-        return  SignupScreen();
+        return SignupScreen();
+      case AppPage.verification:
+        return VerificationScreen();
       case AppPage.home:
-        return  HomeScreen();
+        return HomeScreen();
       case AppPage.mealDetail:
-        return const MealDetailScreen(); // بدون mealId
+        return MealDetailScreen();
       case AppPage.profile:
-        return  ProfileScreen();
+        return ProfileScreen();
       case AppPage.delivery:
-        return  DeliveryScreen();
+        return DeliveryScreen();
       case AppPage.payment:
-        return  PaymentScreen();
+        return PaymentScreen();
       case AppPage.cart:
-        return  CartScreen();
+        return CartScreen();
       case AppPage.checkout:
-        return const CheckoutScreen();
+        return CheckoutScreen();
       case AppPage.orderConfirmation:
-        return  OrderConfirmationScreen();
+        return OrderConfirmationScreen();
       case AppPage.sellMeal:
-        return  SellMealScreen();
+        return SellMealScreen();
       case AppPage.chefDashboard:
-        return  ChefDashboardScreen();
+        return ChefDashboardScreen();
       default:
-        return  WelcomeScreen();
+        return WelcomeScreen();
     }
   }
 
   bool _shouldShowBottomNav(AppPage currentPage, User? user) {
     if (user == null) return false;
+
     return ![
       AppPage.welcome,
       AppPage.login,
       AppPage.signup,
+      AppPage.verification,
       AppPage.checkout,
       AppPage.orderConfirmation,
     ].contains(currentPage);

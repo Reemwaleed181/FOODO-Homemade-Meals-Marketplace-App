@@ -1,50 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:foodo/screens/auth/login_screen.dart';
-import 'package:foodo/screens/auth/signup_screen.dart';
-import 'package:foodo/screens/home/home_screen.dart';
 import 'package:provider/provider.dart';
+import 'providers/navigation_provider.dart';
 import 'providers/auth_provider.dart';
-
+import 'providers/meal_provider.dart';
+import 'providers/cart_provider.dart';
+import 'models/app_state.dart';
 import 'services/api_service.dart';
+import 'services/storage_service.dart';
+import 'screens/app_shell.dart';
+import 'config/app_config.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  final ApiService apiService = ApiService(baseUrl: AppConfig.djangoBaseUrl);
+  final StorageService storageService = StorageService();
+
+  MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        ChangeNotifierProvider(
+          create:
+              (context) => AuthProvider(
+                apiService: apiService,
+                storageService: storageService,
+                navigationProvider: Provider.of<NavigationProvider>(
+                  context,
+                  listen: false,
+                ),
+              ),
+        ),
+        ChangeNotifierProvider(create: (_) => MealProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => AppState()),
       ],
       child: MaterialApp(
-        title: 'HomeCook App',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: FutureBuilder<bool>(
-          future: _checkLoginStatus(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Scaffold(body: Center(child: CircularProgressIndicator()));
-            } else {
-              return snapshot.data == true ? HomeScreen() : LoginScreen();
-            }
-          },
-        ),
-        routes: {
-          '/login': (context) => LoginScreen(),
-          '/signup': (context) => SignupScreen(),
-          '/home': (context) => HomeScreen(),
-        },
+        title: 'Foodo App',
+        theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+        home: AppShell(),
+        debugShowCheckedModeBanner: false,
       ),
     );
-  }
-
-  Future<bool> _checkLoginStatus() async {
-    final token = await ApiService.getToken();
-    return token != null;
   }
 }

@@ -349,7 +349,7 @@ class _MealCard extends StatelessWidget {
               onPressed:
                   () => context.read<NavigationProvider>().navigateTo(
                     AppPage.mealDetail,
-                    mealId: meal.id,
+                    data: {'mealId': meal.id},
                   ),
             ),
           ],
