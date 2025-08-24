@@ -109,29 +109,11 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image
+          // Background
           Container(
             width: double.infinity,
             height: double.infinity,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/food_background_2.jpg'),
-                fit: BoxFit.cover,
-                onError: (exception, stackTrace) {
-                  // Fallback to gradient if image fails to load
-                },
-              ),
-              // Fallback gradient background
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.foodGreen.withOpacity(0.8),
-                  AppColors.foodOrange.withOpacity(0.6),
-                  AppColors.foodPurple.withOpacity(0.4),
-                ],
-              ),
-            ),
+            color: AppColors.surface,
           ),
 
           // Curved White Container
@@ -160,6 +142,11 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // App Logo
+                    Center(child: _buildLogo()),
+
+                    const SizedBox(height: 16),
+
                     // Welcome Header
                     _buildWelcomeHeader(),
 
@@ -182,9 +169,24 @@ class _SignupScreenState extends State<SignupScreen> {
         ],
       ),
     );
-  }
-
-  Widget _buildWelcomeHeader() {
+    }
+ 
+   Widget _buildLogo() {
+     return Image.asset(
+       'assets/images/logo.png',
+       height: 120,
+       fit: BoxFit.contain,
+       errorBuilder: (context, error, stackTrace) {
+         return Icon(
+           Icons.restaurant_menu,
+           size: 100,
+           color: AppColors.primary,
+         );
+       },
+     );
+   }
+ 
+   Widget _buildWelcomeHeader() {
     return Column(
       children: [
         // App Title with Creative Typography

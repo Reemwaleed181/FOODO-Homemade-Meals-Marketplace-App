@@ -57,29 +57,11 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image
+          // Background
           Container(
             width: double.infinity,
             height: double.infinity,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/food_background.jpg'),
-                fit: BoxFit.cover,
-                onError: (exception, stackTrace) {
-                  // Fallback to gradient if image fails to load
-                },
-              ),
-              // Fallback gradient background
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.foodOrange.withOpacity(0.8),
-                  AppColors.foodRed.withOpacity(0.6),
-                  AppColors.foodPurple.withOpacity(0.4),
-                ],
-              ),
-            ),
+            color: AppColors.surface,
           ),
 
           // Curved White Container
@@ -108,6 +90,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // App Logo
+                    Center(child: _buildLogo()),
+
+                    const SizedBox(height: 16),
+
                     // Welcome Header
                     _buildWelcomeHeader(),
 
@@ -129,6 +116,14 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLogo() {
+    return Image.asset(
+      'images/logo.png',
+      height: 120,
+      fit: BoxFit.contain,
     );
   }
 
