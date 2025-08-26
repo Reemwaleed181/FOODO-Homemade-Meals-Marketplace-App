@@ -50,52 +50,7 @@ assets/
 - Image caching via **cached_network_image**
 - Backend: **Django REST** (Auth + OTP/password flows)
 
-## 🚀 Getting Started
 
-### Prerequisites
-
-- Flutter SDK (latest stable)
-- Android Studio or VS Code
-- Android emulator / iOS Simulator / device
-
-### Clone and install
-
-```bash
-git clone <your-repo-url>
-cd foodo
-flutter pub get
-```
-
-### Configure backend URL
-
-Set the Django base URL in one of two ways:
-
-1) Quick edit in `lib/config/app_config.dart` (development only):
-
-```dart
-// AppConfig.djangoBaseUrl resolves base URL per platform and --dart-define
-```
-
-2) Prefer passing at build time (recommended):
-
-```bash
-flutter run --dart-define BACKEND_BASE_URL=http://192.168.1.10:8000
-```
-
-The app automatically uses `10.0.2.2` for Android emulators and `127.0.0.1` for web/desktop when no override is provided.
-
-### Run the app
-
-```bash
-flutter run
-```
-
-To select a specific device:
-
-```bash
-flutter devices
-flutter run -d <device-id>
-```
 
 ## 🔌 Backend (Django)
 
@@ -110,41 +65,7 @@ The repository includes a Django backend under `Backend_foodo/` with endpoints c
 - `POST /api/verify-password-reset-otp/`
 - `POST /api/reset-password/`
 
-See `Backend_foodo/README` or `DJANGO_SETUP.md` for environment setup and running the server.
+See `Backend_foodo/README` or `DJANGO_SETUP.md` for environment setup and running the server..
 
-## 🧪 Testing & Quality
 
-- Run widget/unit tests (if present):
-
-```bash
-flutter test
-```
-
-- Linting uses `flutter_lints`. Fix warnings in your editor or run:
-
-```bash
-flutter analyze
-```
-
-## 🧭 Troubleshooting
-
-- Android emulator cannot reach localhost:
-  - Use `--dart-define BACKEND_BASE_URL=http://10.0.2.2:8000`
-- CORS errors on web:
-  - Enable CORS on Django or use a proxy during development
-- OTP emails in debug:
-  - In debug mode, OTP is logged to console by `AuthProvider` for easier testing
-
-## 📄 License
-
-MIT – see `LICENSE` if present.
-
-## 🙌 Acknowledgments
-
-- Flutter team and open‑source community
-- All contributors who help improve Foodo
-
-—
-
-Foodo – Where homemade meals meet community connection 🍽️
 
