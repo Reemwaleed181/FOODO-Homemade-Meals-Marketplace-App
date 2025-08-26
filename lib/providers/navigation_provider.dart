@@ -5,6 +5,8 @@ enum AppPage {
   login,
   signup,
   verification,
+  forgotPassword,
+  resetPassword,
   home,
   mealDetail,
   profile,
@@ -28,10 +30,8 @@ class NavigationProvider with ChangeNotifier {
   void navigateTo(AppPage page, {Map<String, dynamic>? data}) {
     _currentPage = page;
     _pageData = data ?? {};
-    if (kDebugMode) {
-      print('Navigated to: $page with data: $_pageData');
-    }
-    notifyListeners();
+    // Use microtask to avoid calling notifyListeners during build
+    Future.microtask(() => notifyListeners());
   }
 
   void goBack() {

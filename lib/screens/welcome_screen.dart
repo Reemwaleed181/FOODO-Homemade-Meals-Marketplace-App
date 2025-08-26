@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/navigation_provider.dart';
+import '../theme/app_colors.dart';
 
 class WelcomeScreen extends StatelessWidget {
   @override
@@ -12,30 +13,21 @@ class WelcomeScreen extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFFFEFEFE), // Light cream at top
-              Color(0xFFFDF2F2), // Soft peachy-pink at bottom
+              AppColors.backgroundPrimary,
+              AppColors.backgroundSecondary,
             ],
           ),
         ),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Column(
-              // Header/Navigation Bar
               children: [
+                // Header with Logo and Action Buttons
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: const EdgeInsets.all(24),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      // Logo
-                      Text(
-                        'HomeCook',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
                       // Action Buttons
                       Row(
                         children: [
@@ -45,39 +37,39 @@ class WelcomeScreen extends StatelessWidget {
                                 .read<NavigationProvider>()
                                 .navigateTo(AppPage.login),
                             child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(25),
-                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: AppColors.borderPrimary),
                               ),
                               child: Text(
                                 'Login',
                                 style: TextStyle(
-                                  color: Colors.black87,
+                                  color: AppColors.textPrimary,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14,
                                 ),
                               ),
                             ),
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           // Sign Up Button
                           GestureDetector(
                             onTap: () => context
                                 .read<NavigationProvider>()
                                 .navigateTo(AppPage.signup),
                             child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.black87,
-                                borderRadius: BorderRadius.circular(25),
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
                                 'Sign Up',
@@ -97,60 +89,78 @@ class WelcomeScreen extends StatelessWidget {
 
                 // Hero Section
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Headline
-                      RichText(
+                      // Main Logo
+                      Image.asset(
+                        'images/logo-removebg.png',
+                        height: 220,
+                        fit: BoxFit.contain,
+                      ),
+
+                      // Tagline
+                      Text(
+                        'buying & selling',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 1.2,
+                        ),
                         textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2D2D2D), // Dark charcoal
-                            height: 1.2,
-                          ),
-                          children: [
-                            TextSpan(text: 'Delicious Homemade\n'),
-                            TextSpan(text: 'Meals '),
-                            TextSpan(
-                              text: 'Made with Love',
-                              style: TextStyle(
-                                color: Color(0xFFFF6B35),
-                              ), // Vibrant orange
-                            ),
-                          ],
+                      ),
+                      
+                      const SizedBox(height: 24),
+
+                      // Main Headline
+                      Text(
+                        'Delicious Homemade\nMeals Made with Love',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                          height: 1.2,
                         ),
                       ),
-                      SizedBox(height: 24),
+                      
+                      const SizedBox(height: 16),
 
                       // Description
                       Text(
-                        'Discover authentic, nutritious meals prepared by talented home chefs in your community. Every dish tells a story, every bite brings comfort.',
+                        'Discover authentic, nutritious meals prepared by talented home chefs in your community.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.grey[600],
-                          height: 1.5,
+                          color: AppColors.textSecondary,
+                          height: 1.4,
                         ),
                       ),
-                      SizedBox(height: 40),
+                      
+                      const SizedBox(height: 40),
 
-                      // Call-to-Action Button
+                      // Main CTA Button
                       GestureDetector(
                         onTap: () => context
                             .read<NavigationProvider>()
                             .navigateTo(AppPage.signup),
                         child: Container(
                           width: double.infinity,
-                          padding: EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: Colors.black87,
+                            color: AppColors.primary,
                             borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
                           child: Text(
-                            'Start Ordering Now',
+                            "Let's Get Started",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.white,
@@ -164,56 +174,48 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                 ),
 
+                const SizedBox(height: 48),
+
                 // Features Section
-                Container(
-                  padding: EdgeInsets.all(24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     children: [
-                      // Section Title
                       Text(
-                        'Why Choose HomeCook!',
+                        'Why Choose Foodo!',
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: AppColors.textPrimary,
                         ),
                       ),
-                      SizedBox(height: 32),
+                      const SizedBox(height: 32),
 
                       // Feature Cards
-                      Row(
+                      Column(
                         children: [
-                          Expanded(
-                            child: _FeatureCard(
-                              icon: Icons.restaurant,
-                              title: 'Local Home Chefs',
-                              description:
-                              'Support talented women in your community who pour their heart into every meal they create.',
-                              iconColor: Color(0xFFFF6B35),
-                              backgroundColor: Color(0xFFFFF3E0),
-                            ),
+                          _MobileFeatureCard(
+                            icon: Icons.restaurant,
+                            title: 'Local Home Chefs',
+                            description: 'Support talented women in your community who pour their heart into every meal.',
+                            iconColor: AppColors.primary,
+                            backgroundColor: AppColors.cardAccent,
                           ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: _FeatureCard(
-                              icon: Icons.restaurant_menu,
-                              title: 'Fresh & Nutritious',
-                              description:
-                              'Complete nutritional information with calories, macros, and portion sizes for healthy living.',
-                              iconColor: Colors.green[600]!,
-                              backgroundColor: Colors.green[50]!,
-                            ),
+                          const SizedBox(height: 20),
+                          _MobileFeatureCard(
+                            icon: Icons.restaurant_menu,
+                            title: 'Fresh & Nutritious',
+                            description: 'Complete nutritional information with calories, macros, and portion sizes.',
+                            iconColor: AppColors.foodGreen,
+                            backgroundColor: Colors.green[50]!,
                           ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: _FeatureCard(
-                              icon: Icons.local_shipping,
-                              title: 'Fast Delivery',
-                              description:
-                              'Quick and reliable delivery service bringing restaurant-quality meals to your doorstep.',
-                              iconColor: Colors.blue[600]!,
-                              backgroundColor: Colors.blue[50]!,
-                            ),
+                          const SizedBox(height: 20),
+                          _MobileFeatureCard(
+                            icon: Icons.local_shipping,
+                            title: 'Fast Delivery',
+                            description: 'Quick and reliable delivery service bringing restaurant-quality meals to you.',
+                            iconColor: AppColors.secondary,
+                            backgroundColor: AppColors.backgroundTertiary,
                           ),
                         ],
                       ),
@@ -221,40 +223,43 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                 ),
 
-                // Call-to-Action Section
+                const SizedBox(height: 48),
+
+                // Bottom CTA Section
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: Color(0xFFFF6B35), // Bright orange
+                    color: AppColors.primary,
                   ),
                   child: Column(
                     children: [
                       Text(
                         'Ready to Taste the Difference?',
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
                         'Join thousands of satisfied customers who\'ve discovered the joy of authentic homemade meals.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.white,
-                          height: 1.5,
+                          height: 1.4,
                         ),
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       GestureDetector(
                         onTap: () => context
                             .read<NavigationProvider>()
                             .navigateTo(AppPage.signup),
                         child: Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 32,
                             vertical: 16,
                           ),
@@ -265,7 +270,7 @@ class WelcomeScreen extends StatelessWidget {
                           child: Text(
                             'Get Started Today',
                             style: TextStyle(
-                              color: Colors.black87,
+                              color: AppColors.primary,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -284,14 +289,14 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 
-class _FeatureCard extends StatelessWidget {
+class _MobileFeatureCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
   final Color iconColor;
   final Color backgroundColor;
 
-  const _FeatureCard({
+  const _MobileFeatureCard({
     required this.icon,
     required this.title,
     required this.description,
@@ -302,51 +307,59 @@ class _FeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 4),
+            color: AppColors.shadowLight,
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Column(
+      child: Row(
         children: [
           // Icon
           Container(
-            width: 60,
-            height: 60,
+            width: 50,
+            height: 50,
             decoration: BoxDecoration(
               color: backgroundColor,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: iconColor, size: 30),
-          ),
-          SizedBox(height: 16),
-          // Title
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+            child: Icon(
+              icon, 
+              color: iconColor, 
+              size: 24
             ),
-            textAlign: TextAlign.center,
           ),
-          SizedBox(height: 8),
-          // Description
-          Text(
-            description,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-              height: 1.4,
+          const SizedBox(width: 16),
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                    height: 1.3,
+                  ),
+                ),
+              ],
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),

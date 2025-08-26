@@ -44,7 +44,8 @@ class AppState with ChangeNotifier {
   // Load meals data from JSON
   Future<void> _loadMealsData() async {
     _isLoading = true;
-    notifyListeners();
+    // Use microtask to avoid calling notifyListeners during build
+    Future.microtask(() => notifyListeners());
 
     try {
       final dataService = DataService.instance;
@@ -55,7 +56,8 @@ class AppState with ChangeNotifier {
     }
 
     _isLoading = false;
-    notifyListeners();
+    // Use microtask to avoid calling notifyListeners during build
+    Future.microtask(() => notifyListeners());
   }
 
   // Get meal by ID

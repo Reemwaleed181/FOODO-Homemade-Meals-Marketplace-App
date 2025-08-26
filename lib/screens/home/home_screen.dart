@@ -46,13 +46,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
+                    // Foodo Logo
+                    Center(
+                      child: Image.asset(
+                        'images/logo-removebg.png',
+                        height: 60,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
                     // Welcome Message
                     Text(
                       'Welcome back, ${authProvider.user?.name ?? 'User'}! 👋',
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1E293B),
+                        color: Color(0xFF2C3E50),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -171,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisCount: 2,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 20,
-                            childAspectRatio: 0.75,
+                            childAspectRatio: 0.8, // Increased aspect ratio for more content
                           ),
                       itemCount: mealProvider.featuredMeals.length.clamp(0, 4),
                       itemBuilder: (context, index) {
@@ -196,16 +206,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFF1E293B) : Colors.white,
+        color: isSelected ? const Color(0xFF20B2AA) : Colors.white,
         borderRadius: BorderRadius.circular(25),
         border: Border.all(
-          color: isSelected ? const Color(0xFF1E293B) : Colors.grey[300]!,
+          color: isSelected ? const Color(0xFF20B2AA) : Colors.grey[300]!,
         ),
         boxShadow:
             isSelected
                 ? [
                   BoxShadow(
-                    color: const Color(0xFF1E293B).withOpacity(0.2),
+                    color: const Color(0xFF20B2AA).withOpacity(0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -326,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           const Icon(Icons.star, color: Colors.amber, size: 14),
                           const SizedBox(width: 4),
                           Text(
-                            '4.8',
+                            meal.rating.toString(),
                             style: TextStyle(
                               color: Colors.grey[800],
                               fontSize: 12,
@@ -371,7 +381,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const Spacer(),
+                    const SizedBox(height: 8),
 
                     // Stats Row
                     Row(
@@ -396,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         Row(
                           children: [
-                            Icon(Icons.person, color: Colors.blue, size: 16),
+                            Icon(Icons.scale, color: Colors.blue, size: 16),
                             const SizedBox(width: 4),
                             Text(
                               '${meal.portionSize}',
@@ -448,6 +458,75 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
+
+                    const SizedBox(height: 8),
+
+                    // Dietary Tags
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        if (meal.isVegetarian)
+                          _buildDietaryTag('Vegetarian', Colors.green, Icons.eco),
+                        if (meal.isVegan)
+                          _buildDietaryTag('Vegan', Colors.green, Icons.eco),
+                        if (meal.isGlutenFree)
+                          _buildDietaryTag('Gluten-Free', Colors.blue, Icons.auto_awesome),
+                        ...meal.tags.take(2).map((tag) => _buildDietaryTag(tag, Colors.grey, Icons.favorite)),
+                      ],
+                    ),
+
+                    const Spacer(),
+
+                    // Price and Orders Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '\$${meal.price.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1E293B),
+                          ),
+                        ),
+                        Text(
+                          '${meal.orderCount} orders',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // View Details Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => navigationProvider.navigateTo(
+                          AppPage.mealDetail,
+                          data: {'mealId': meal.id},
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF20B2AA),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'View Details',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -472,6 +551,32 @@ class _HomeScreenState extends State<HomeScreen> {
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),
+      ),
+    );
+  }
+
+  Widget _buildDietaryTag(String text, Color color, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 12),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

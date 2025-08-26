@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
 
 enum ButtonVariant { primary, secondary, outline, destructive }
 enum ButtonSize { small, medium, large }
@@ -22,30 +23,28 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     Color backgroundColor;
     Color textColor;
     BorderSide borderSide;
 
     switch (variant) {
       case ButtonVariant.primary:
-        backgroundColor = theme.primaryColor;
+        backgroundColor = AppColors.buttonPrimary;
         textColor = Colors.white;
         borderSide = BorderSide.none;
         break;
       case ButtonVariant.secondary:
-        backgroundColor = Colors.grey[200]!;
-        textColor = Colors.black;
+        backgroundColor = AppColors.buttonSecondary;
+        textColor = Colors.white;
         borderSide = BorderSide.none;
         break;
       case ButtonVariant.outline:
         backgroundColor = Colors.transparent;
-        textColor = theme.primaryColor;
-        borderSide = BorderSide(color: theme.primaryColor);
+        textColor = AppColors.buttonPrimary;
+        borderSide = BorderSide(color: AppColors.buttonPrimary);
         break;
       case ButtonVariant.destructive:
-        backgroundColor = Colors.red;
+        backgroundColor = AppColors.error;
         textColor = Colors.white;
         borderSide = BorderSide.none;
         break;

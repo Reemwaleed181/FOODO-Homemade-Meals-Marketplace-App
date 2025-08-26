@@ -15,19 +15,33 @@ class ApiService {
   ApiService({required this.baseUrl});
 
   Future<ApiResponse> register(
-    String email,
-    String password,
     String name,
-  ) async {
+    String email,
+    String password, {
+    String phone = '',
+    String address = '',
+    String city = '',
+    String zipCode = '',
+  }) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/api/register/'),
+      final response = await http
+          .post(
+        Uri.parse('$baseUrl/api/auth/signup/'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: json.encode({'email': email, 'password': password, 'name': name}),
-      );
+        body: json.encode({
+          'name': name,
+          'email': email, 
+          'password': password,
+          'phone': phone,
+          'address': address,
+          'city': city,
+          'zip_code': zipCode,
+        }),
+      )
+          .timeout(const Duration(seconds: 15));
 
       print('Server status code: ${response.statusCode}');
       print('Server response: ${response.body}');
@@ -36,7 +50,7 @@ class ApiService {
         final data = json.decode(response.body);
         return ApiResponse(
           success: true,
-          data: data,
+          data: data['data'] ?? data,
           message: data['message'] ?? 'Registration successful',
         );
       } else {
@@ -60,30 +74,53 @@ class ApiService {
 
   Future<ApiResponse> login(String email, String password) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/api/login/'),
+      final response = await http
+          .post(
+        Uri.parse('$baseUrl/api/auth/login/'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         body: json.encode({'email': email, 'password': password}),
-      );
+      )
+          .timeout(const Duration(seconds: 15));
+
+      print('Login response: ${response.statusCode}');
+      print('Login body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return ApiResponse(
           success: true,
-          data: data,
+          data: data['data'] ?? data,
           message: data['message'] ?? 'Login successful',
         );
       } else {
         final errorData = json.decode(response.body);
+        
+        // Extract error message from different possible fields
+        String errorMessage = 'Login failed';
+        if (errorData['errors'] != null && errorData['errors'] is List) {
+          // Handle array of error messages
+          List errors = errorData['errors'];
+          if (errors.isNotEmpty) {
+            errorMessage = errors.first.toString();
+          }
+        } else if (errorData['message'] != null) {
+          errorMessage = errorData['message'];
+        } else if (errorData['error'] != null) {
+          errorMessage = errorData['error'];
+        } else if (errorData['detail'] != null) {
+          errorMessage = errorData['detail'];
+        }
+        
         return ApiResponse(
           success: false,
-          message: errorData['message'] ?? errorData['error'] ?? 'Login failed',
+          message: errorMessage,
         );
       }
     } catch (e) {
+      print('Login error: $e');
       return ApiResponse(
         success: false,
         message: 'Server connection error: $e',
@@ -93,14 +130,16 @@ class ApiService {
 
   Future<ApiResponse> verifyEmail(String email, String code) async {
     try {
-      final response = await http.post(
+      final response = await http
+          .post(
         Uri.parse('$baseUrl/api/verify-email/'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         body: json.encode({'email': email, 'code': code}),
-      );
+      )
+          .timeout(const Duration(seconds: 15));
 
       print('Verify email response: ${response.statusCode}');
       print('Verify email body: ${response.body}');
@@ -134,14 +173,16 @@ class ApiService {
   // Send OTP to email via Django backend
   Future<ApiResponse> sendOtp(String email) async {
     try {
-      final response = await http.post(
+      final response = await http
+          .post(
         Uri.parse('$baseUrl/api/send-otp/'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         body: json.encode({'email': email}),
-      );
+      )
+          .timeout(const Duration(seconds: 15));
 
       print('Send OTP response: ${response.statusCode}');
       print('Send OTP body: ${response.body}');
@@ -172,17 +213,152 @@ class ApiService {
     }
   }
 
+  // Forgot password via Django backend
+  Future<ApiResponse> forgotPassword(String email) async {
+    try {
+      final response = await http
+          .post(
+        Uri.parse('$baseUrl/api/forgot-password/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode({'email': email}),
+      )
+          .timeout(const Duration(seconds: 15));
+
+
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return ApiResponse(
+          success: true,
+          data: data,
+          message: data['message'] ?? 'Password reset OTP sent successfully',
+        );
+      } else {
+        final errorData = json.decode(response.body);
+        return ApiResponse(
+          success: false,
+          message:
+              errorData['message'] ??
+              errorData['error'] ??
+              'Failed to send password reset OTP',
+        );
+      }
+    } catch (e) {
+      print('Forgot password error: $e');
+      return ApiResponse(
+        success: false,
+        message: 'Server connection error: $e',
+      );
+    }
+  }
+
+  // Verify password reset OTP
+  Future<ApiResponse> verifyPasswordResetOtp(String email, String otpCode) async {
+    try {
+      final response = await http
+          .post(
+        Uri.parse('$baseUrl/api/verify-password-reset-otp/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode({
+          'email': email,
+          'otp_code': otpCode,
+        }),
+      )
+          .timeout(const Duration(seconds: 15));
+
+
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return ApiResponse(
+          success: true,
+          data: data,
+          message: data['message'] ?? 'OTP verified successfully',
+        );
+      } else {
+        final errorData = json.decode(response.body);
+        return ApiResponse(
+          success: false,
+          message:
+              errorData['message'] ??
+              errorData['error'] ??
+              'Failed to verify OTP',
+        );
+      }
+    } catch (e) {
+      print('Verify OTP error: $e');
+      return ApiResponse(
+        success: false,
+        message: 'Server connection error: $e',
+      );
+    }
+  }
+
+  // Reset password via Django backend
+  Future<ApiResponse> resetPassword(String email, String otpCode, String newPassword) async {
+    try {
+      final response = await http
+          .post(
+        Uri.parse('$baseUrl/api/reset-password/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode({
+          'email': email,
+          'otp_code': otpCode,
+          'new_password': newPassword,
+        }),
+      )
+          .timeout(const Duration(seconds: 15));
+
+
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return ApiResponse(
+          success: true,
+          data: data,
+          message: data['message'] ?? 'Password reset successfully',
+        );
+      } else {
+        final errorData = json.decode(response.body);
+        return ApiResponse(
+          success: false,
+          message:
+              errorData['message'] ??
+              errorData['error'] ??
+              'Failed to reset password',
+        );
+      }
+    } catch (e) {
+      print('Reset password error: $e');
+      return ApiResponse(
+        success: false,
+        message: 'Server connection error: $e',
+      );
+    }
+  }
+
   // Resend OTP via Django backend
   Future<ApiResponse> resendOtp(String email) async {
     try {
-      final response = await http.post(
+      final response = await http
+          .post(
         Uri.parse('$baseUrl/api/resend-otp/'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         body: json.encode({'email': email}),
-      );
+      )
+          .timeout(const Duration(seconds: 15));
 
       print('Resend OTP response: ${response.statusCode}');
       print('Resend OTP body: ${response.body}');

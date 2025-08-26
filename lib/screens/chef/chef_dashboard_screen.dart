@@ -7,6 +7,7 @@ import '../../widgets/custom_button.dart';
 import '../../widgets/custom_badge.dart';
 import '../../widgets/image_with_fallback.dart';
 import '../../providers/navigation_provider.dart';
+import '../../widgets/bottom_navigation.dart';
 
 class ChefDashboardScreen extends StatefulWidget {
   @override
@@ -71,27 +72,65 @@ class _ChefDashboardScreenState extends State<ChefDashboardScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text('Chef Dashboard'),
-          bottom: TabBar(
-            tabs: [
-              Tab(text: 'My Meals'),
-              Tab(text: 'Analytics'),
-              Tab(text: 'Chef Profile'),
-            ],
-          ),
-        ),
-        body: TabBarView(
+        body: Column(
           children: [
-            _buildMealsTab(userMeals, appState, activeMeals),
-            _buildAnalyticsTab(
-              userMeals,
-              totalRevenue,
-              totalOrders,
-              averageRating,
-              activeMeals,
+            // Custom header with tabs
+            Container(
+              color: Colors.white,
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    // Header
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Chef Dashboard',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const Spacer(),
+                          // Foodo Logo
+                          Image.asset(
+                            'images/logo-removebg.png',
+                            height: 40,
+                            fit: BoxFit.contain,
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Tabs
+                    TabBar(
+                      tabs: [
+                        Tab(text: 'My Meals'),
+                        Tab(text: 'Analytics'),
+                        Tab(text: 'Chef Profile'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
-            _buildProfileTab(user, userMeals, totalOrders, averageRating),
+            // Tab content
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _buildMealsTab(userMeals, appState, activeMeals),
+                  _buildAnalyticsTab(
+                    userMeals,
+                    totalRevenue,
+                    totalOrders,
+                    averageRating,
+                    activeMeals,
+                  ),
+                  _buildProfileTab(userMeals, totalOrders, averageRating),
+                ],
+              ),
+            ),
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -102,6 +141,7 @@ class _ChefDashboardScreenState extends State<ChefDashboardScreen> {
           child: Icon(Icons.add),
           backgroundColor: Colors.orange,
         ),
+        bottomNavigationBar: const BottomNavigation(),
       ),
     );
   }
@@ -243,7 +283,6 @@ class _ChefDashboardScreenState extends State<ChefDashboardScreen> {
   }
 
   Widget _buildProfileTab(
-    User user,
     List<Meal> userMeals,
     int totalOrders,
     double averageRating,
@@ -274,14 +313,14 @@ class _ChefDashboardScreenState extends State<ChefDashboardScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              user.name,
+                              'Your Profile',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             Text(
-                              user.email,
+                              'Manage your chef profile and settings.',
                               style: TextStyle(color: Colors.grey),
                             ),
                           ],

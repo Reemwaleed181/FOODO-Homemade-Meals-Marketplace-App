@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_input.dart';
+import '../../widgets/bottom_navigation.dart';
 
 class DeliveryScreen extends StatefulWidget {
   @override
@@ -110,98 +111,132 @@ class _DeliveryScreenState extends State<DeliveryScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Delivery Settings')),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Delivery Addresses', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
-
-            // Address list
-            Column(
-              children: _addresses.map((address) => _AddressCard(
-                address: address,
-                onSetDefault: _setDefaultAddress,
-                onDelete: _deleteAddress,
-              )).toList(),
-            ),
-
-            // Add address form
-            if (_isAddingAddress) _AddAddressForm(
-              typeController: _typeController,
-              labelController: _labelController,
-              addressController: _addressController,
-              cityController: _cityController,
-              zipCodeController: _zipCodeController,
-              instructionsController: _instructionsController,
-              onAdd: _addAddress,
-              onCancel: () => setState(() => _isAddingAddress = false),
-            ),
-
-            // Add address button
-            if (!_isAddingAddress)
-              CustomButton(
-                text: 'Add New Address',
-                variant: ButtonVariant.outline,
-                icon: Icon(Icons.add),
-                onPressed: () => setState(() => _isAddingAddress = true),
-              ),
-
-            SizedBox(height: 32),
-            Text('Delivery Preferences', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
-
-            // Delivery preferences
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    _PreferenceRow(
-                      label: 'Preferred Delivery Time',
-                      value: 'Anytime',
-                      onTap: () => _showTimePicker(),
-                    ),
-                    Divider(),
-                    _PreferenceRow(
-                      label: 'Contact Method',
-                      value: 'Call when arriving',
-                      onTap: () => _showContactMethodPicker(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Delivery zone info
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.green[50],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.green[200]!),
-              ),
+      body: Column(
+        children: [
+          // Custom header
+          SafeArea(
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  Icon(Icons.location_on, color: Colors.green),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    'Delivery Settings',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const Spacer(),
+                  // Foodo Logo
+                  Image.asset(
+                    'images/logo-removebg.png',
+                    height: 40,
+                    fit: BoxFit.contain,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Content
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Delivery Addresses', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 16),
+
+                  // Address list
+                  Column(
+                    children: _addresses.map((address) => _AddressCard(
+                      address: address,
+                      onSetDefault: _setDefaultAddress,
+                      onDelete: _deleteAddress,
+                    )).toList(),
+                  ),
+
+                  // Add address form
+                  if (_isAddingAddress) _AddAddressForm(
+                    typeController: _typeController,
+                    labelController: _labelController,
+                    addressController: _addressController,
+                    cityController: _cityController,
+                    zipCodeController: _zipCodeController,
+                    instructionsController: _instructionsController,
+                    onAdd: _addAddress,
+                    onCancel: () => setState(() => _isAddingAddress = false),
+                  ),
+
+                  // Add address button
+                  if (!_isAddingAddress)
+                    CustomButton(
+                      text: 'Add New Address',
+                      variant: ButtonVariant.outline,
+                      icon: Icon(Icons.add),
+                      onPressed: () => setState(() => _isAddingAddress = true),
+                    ),
+
+                  SizedBox(height: 32),
+                  Text('Delivery Preferences', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 16),
+
+                  // Delivery preferences
+                  Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          _PreferenceRow(
+                            label: 'Preferred Delivery Time',
+                            value: 'Anytime',
+                            onTap: () => _showTimePicker(),
+                          ),
+                          Divider(),
+                          _PreferenceRow(
+                            label: 'Contact Method',
+                            value: 'Call when arriving',
+                            onTap: () => _showContactMethodPicker(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Delivery zone info
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.green[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green[200]!),
+                    ),
+                    child: Row(
                       children: [
-                        Text('You\'re in our delivery zone!', style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('Free delivery on orders over \$25 • Delivery time: 30-45 minutes'),
+                        Icon(Icons.location_on, color: Colors.green),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('You\'re in our delivery zone!', style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text('Free delivery on orders over \$25 • Delivery time: 30-45 minutes'),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+      bottomNavigationBar: const BottomNavigation(),
     );
   }
 

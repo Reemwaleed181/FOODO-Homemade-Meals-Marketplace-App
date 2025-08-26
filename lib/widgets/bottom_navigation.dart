@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
+import '../theme/app_colors.dart';
 
 class BottomNavigation extends StatelessWidget {
   const BottomNavigation({super.key});
@@ -38,13 +39,13 @@ class BottomNavigation extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        color: AppColors.navBackground,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Colors.black26,
+            color: AppColors.shadowMedium,
             blurRadius: 10,
-            offset: Offset(0, -2),
+            offset: const Offset(0, -2),
           ),
         ],
       ),
@@ -73,7 +74,7 @@ class BottomNavigation extends StatelessWidget {
                         horizontal: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: isActive ? Colors.black : Colors.transparent,
+                        color: isActive ? AppColors.navSelected : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(
@@ -85,7 +86,7 @@ class BottomNavigation extends StatelessWidget {
                                 item.icon,
                                 size: 20,
                                 color:
-                                    isActive ? Colors.white : Colors.grey[400],
+                                    isActive ? Colors.white : AppColors.navUnselected,
                               ),
                               if (item.badgeCount != null &&
                                   item.badgeCount! > 0)
@@ -95,7 +96,7 @@ class BottomNavigation extends StatelessWidget {
                                   child: Container(
                                     padding: const EdgeInsets.all(2),
                                     decoration: BoxDecoration(
-                                      color: Colors.orange,
+                                      color: AppColors.secondary,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     constraints: const BoxConstraints(
@@ -120,7 +121,7 @@ class BottomNavigation extends StatelessWidget {
                             item.label,
                             style: TextStyle(
                               fontSize: 10,
-                              color: isActive ? Colors.white : Colors.grey[400],
+                              color: isActive ? Colors.white : AppColors.navUnselected,
                               fontWeight:
                                   isActive ? FontWeight.w600 : FontWeight.w400,
                             ),

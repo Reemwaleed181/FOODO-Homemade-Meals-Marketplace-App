@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_input.dart';
+import '../../widgets/bottom_navigation.dart';
 
 class PaymentScreen extends StatefulWidget {
   @override
@@ -107,109 +108,143 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Payment Methods')),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Payment methods
-            Text('Saved Payment Methods', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
-
-            Column(
-              children: _paymentMethods.map((method) => _PaymentMethodCard(
-                method: method,
-                onSetDefault: _setDefaultPayment,
-                onDelete: _deletePayment,
-              )).toList(),
-            ),
-
-            // Add card form
-            if (_isAddingCard) _AddCardForm(
-              cardNumberController: _cardNumberController,
-              expiryDateController: _expiryDateController,
-              cvvController: _cvvController,
-              nameController: _nameController,
-              zipCodeController: _zipCodeController,
-              onAdd: _addCard,
-              onCancel: () => setState(() => _isAddingCard = false),
-            ),
-
-            // Add card button
-            if (!_isAddingCard)
-              CustomButton(
-                text: 'Add Card',
-                variant: ButtonVariant.outline,
-                icon: Icon(Icons.add),
-                onPressed: () => setState(() => _isAddingCard = true),
-              ),
-
-            SizedBox(height: 32),
-            Text('Quick Payment Options', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
-
-            // Quick payment options
-            _QuickPaymentOption(
-              icon: Icons.phone_iphone,
-              title: 'Apple Pay',
-              subtitle: 'Pay with Touch ID or Face ID',
-              color: Colors.black,
-            ),
-            SizedBox(height: 8),
-            _QuickPaymentOption(
-              icon: Icons.payment,
-              title: 'PayPal',
-              subtitle: 'Pay with your PayPal account',
-              color: Colors.blue,
-            ),
-
-            SizedBox(height: 32),
-            Text('Billing Settings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
-
-            // Billing settings
-            _BillingSetting(
-              title: 'Save payment information',
-              subtitle: 'Securely store cards for faster checkout',
-              value: _billingSettings['savePaymentInfo']!,
-              onChanged: (value) => setState(() => _billingSettings['savePaymentInfo'] = value),
-            ),
-            Divider(),
-            _BillingSetting(
-              title: 'Email receipts',
-              subtitle: 'Get email confirmations for all orders',
-              value: _billingSettings['emailReceipts']!,
-              onChanged: (value) => setState(() => _billingSettings['emailReceipts'] = value),
-            ),
-
-            // Security info
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.green[50],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.green[200]!),
-              ),
+      body: Column(
+        children: [
+          // Custom header
+          SafeArea(
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  Icon(Icons.security, color: Colors.green),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    'Payment Methods',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const Spacer(),
+                  // Foodo Logo
+                  Image.asset(
+                    'images/logo-removebg.png',
+                    height: 40,
+                    fit: BoxFit.contain,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Content
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Payment methods
+                  Text('Saved Payment Methods', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 16),
+
+                  Column(
+                    children: _paymentMethods.map((method) => _PaymentMethodCard(
+                      method: method,
+                      onSetDefault: _setDefaultPayment,
+                      onDelete: _deletePayment,
+                    )).toList(),
+                  ),
+
+                  // Add card form
+                  if (_isAddingCard) _AddCardForm(
+                    cardNumberController: _cardNumberController,
+                    expiryDateController: _expiryDateController,
+                    cvvController: _cvvController,
+                    nameController: _nameController,
+                    zipCodeController: _zipCodeController,
+                    onAdd: _addCard,
+                    onCancel: () => setState(() => _isAddingCard = false),
+                  ),
+
+                  // Add card button
+                  if (!_isAddingCard)
+                    CustomButton(
+                      text: 'Add Card',
+                      variant: ButtonVariant.outline,
+                      icon: Icon(Icons.add),
+                      onPressed: () => setState(() => _isAddingCard = true),
+                    ),
+
+                  SizedBox(height: 32),
+                  Text('Quick Payment Options', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 16),
+
+                  // Quick payment options
+                  _QuickPaymentOption(
+                    icon: Icons.phone_iphone,
+                    title: 'Apple Pay',
+                    subtitle: 'Pay with Touch ID or Face ID',
+                    color: Colors.black,
+                  ),
+                  SizedBox(height: 8),
+                  _QuickPaymentOption(
+                    icon: Icons.payment,
+                    title: 'PayPal',
+                    subtitle: 'Pay with your PayPal account',
+                    color: Colors.blue,
+                  ),
+
+                  SizedBox(height: 32),
+                  Text('Billing Settings', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 16),
+
+                  // Billing settings
+                  _BillingSetting(
+                    title: 'Save payment information',
+                    subtitle: 'Securely store cards for faster checkout',
+                    value: _billingSettings['savePaymentInfo']!,
+                    onChanged: (value) => setState(() => _billingSettings['savePaymentInfo'] = value),
+                  ),
+                  Divider(),
+                  _BillingSetting(
+                    title: 'Email receipts',
+                    subtitle: 'Get email confirmations for all orders',
+                    value: _billingSettings['emailReceipts']!,
+                    onChanged: (value) => setState(() => _billingSettings['emailReceipts'] = value),
+                  ),
+
+                  // Security info
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.green[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green[200]!),
+                    ),
+                    child: Row(
                       children: [
-                        Text('Your payments are secure', style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text('All payment information is encrypted and processed securely.'),
+                        Icon(Icons.security, color: Colors.green),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Secure & Encrypted', style: TextStyle(fontWeight: FontWeight.bold)),
+                              Text('All payment information is encrypted and secure'),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+      bottomNavigationBar: const BottomNavigation(),
     );
   }
 }

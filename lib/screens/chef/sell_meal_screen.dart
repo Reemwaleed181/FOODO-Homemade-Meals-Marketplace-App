@@ -7,6 +7,7 @@ import '../../models/user.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_input.dart';
 import '../../widgets/custom_badge.dart';
+import '../../widgets/bottom_navigation.dart';
 
 class SellMealScreen extends StatefulWidget {
   @override
@@ -196,86 +197,113 @@ class _SellMealScreenState extends State<SellMealScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Add New Meal'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => context.read<NavigationProvider>().navigateTo(AppPage.chefDashboard),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Basic Information
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Basic Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 16),
-                    CustomInput(
-                      controller: _nameController,
-                      label: 'Meal Name *',
-                      hintText: 'e.g., Grandma\'s Homemade Lasagna',
-                    ),
-                    SizedBox(height: 16),
-                    CustomInput(
-                      controller: _descriptionController,
-                      label: 'Description *',
-                      hintText: 'Describe your meal, cooking method, and what makes it special...',
-                      maxLines: 4,
-                    ),
-                    SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomInput(
-                            controller: _priceController,
-                            label: 'Price (\$) *',
-                            keyboardType: TextInputType.numberWithOptions(decimal: true),
-                            // FIXED: Removed prefixText parameter
-                          ),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: CustomInput(
-                            controller: _portionSizeController,
-                            label: 'Portion Size *',
-                            hintText: 'Serves 2-3',
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16),
-                    CustomInput(
-                      controller: _prepTimeController,
-                      label: 'Preparation Time *',
-                      hintText: '30 minutes',
-                    ),
-                    SizedBox(height: 16),
-                    CustomInput(
-                      controller: _imageUrlController,
-                      label: 'Image URL (Optional)',
-                      hintText: 'https://example.com/meal-image.jpg',
-                    ),
-                  ],
-                ),
+      body: Column(
+        children: [
+          // Custom header
+          SafeArea(
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => context.read<NavigationProvider>().navigateTo(AppPage.chefDashboard),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    'Add New Meal',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const Spacer(),
+                  // Foodo Logo
+                  Image.asset(
+                    'images/logo-removebg.png',
+                    height: 40,
+                    fit: BoxFit.contain,
+                  ),
+                ],
               ),
             ),
+          ),
+          // Content
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  // Basic Information
+                  Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Basic Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 16),
+                          CustomInput(
+                            controller: _nameController,
+                            label: 'Meal Name *',
+                            hintText: 'e.g., Grandma\'s Homemade Lasagna',
+                          ),
+                          SizedBox(height: 16),
+                          CustomInput(
+                            controller: _descriptionController,
+                            label: 'Description *',
+                            hintText: 'Describe your meal, cooking method, and what makes it special...',
+                            maxLines: 4,
+                          ),
+                          SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomInput(
+                                  controller: _priceController,
+                                  label: 'Price (\$) *',
+                                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: CustomInput(
+                                  controller: _portionSizeController,
+                                  label: 'Portion Size *',
+                                  hintText: 'Serves 2-3',
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+                          CustomInput(
+                            controller: _prepTimeController,
+                            label: 'Preparation Time *',
+                            hintText: '30 minutes',
+                          ),
+                          SizedBox(height: 16),
+                          CustomInput(
+                            controller: _imageUrlController,
+                            label: 'Image URL (Optional)',
+                            hintText: 'https://example.com/meal-image.jpg',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
 
-            // ... rest of the file remains the same
-            SizedBox(height: 16),
-            CustomButton(
-              text: _isSubmitting ? 'Adding Meal...' : 'Add Meal for Sale',
-              onPressed: _isSubmitting ? null : _submitMeal,
-              size: ButtonSize.large,
+                  // ... rest of the file remains the same
+                  SizedBox(height: 16),
+                  CustomButton(
+                    text: _isSubmitting ? 'Adding Meal...' : 'Add Meal for Sale',
+                    onPressed: _isSubmitting ? null : _submitMeal,
+                    size: ButtonSize.large,
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+      bottomNavigationBar: const BottomNavigation(),
     );
   }
 }

@@ -9,6 +9,9 @@ import 'welcome_screen.dart';
 import 'auth/login_screen.dart';
 import 'auth/signup_screen.dart';
 import 'auth/verification_screen.dart';
+import 'auth/password/forgot_password_screen.dart';
+import 'auth/password/reset_password_screen.dart';
+
 import 'home/home_screen.dart';
 import 'home/meal_detail_screen.dart';
 import 'cart/cart_screen.dart';
@@ -32,29 +35,31 @@ class _AppShellState extends State<AppShell> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeAppData();
-    });
+    _initializeAppData();
   }
 
   void _initializeAppData() {
-    final authProvider = context.read<AuthProvider>();
-    final mealProvider = context.read<MealProvider>();
-    final appState = context.read<AppState>();
+    // Use microtask to avoid calling providers during build
+    Future.microtask(() {
+      final authProvider = context.read<AuthProvider>();
+      final mealProvider = context.read<MealProvider>();
+      final appState = context.read<AppState>();
 
-    authProvider.loadUser();
-    mealProvider.loadMeals();
-    appState.loadInitialData();
+      authProvider.loadUser();
+      mealProvider.loadMeals();
+      appState.loadInitialData();
+    });
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
-    return Consumer2<NavigationProvider, AuthProvider>(
-      builder: (context, navigationProvider, authProvider, child) {
+    return Consumer<NavigationProvider>(
+      builder: (context, navigationProvider, child) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
         final currentPage = navigationProvider.currentPage;
         final pageData = navigationProvider.pageData;
         final user = authProvider.user;
-
+        
         return Scaffold(
           body: _buildCurrentScreen(currentPage, pageData),
           bottomNavigationBar:
@@ -78,7 +83,18 @@ class _AppShellState extends State<AppShell> {
       case AppPage.signup:
         return SignupScreen();
       case AppPage.verification:
-        return VerificationScreen();
+        return VerificationScreen(
+          email: pageData['email'] ?? context.read<AuthProvider>().user?.email ?? '',
+          token: pageData['token'],
+        );
+      case AppPage.forgotPassword:
+        return ForgotPasswordScreen();
+      case AppPage.resetPassword:
+        return ResetPasswordScreen(
+          email: pageData['email'] ?? '',
+          otpCode: pageData['otpCode'] ?? '',
+        );
+
       case AppPage.home:
         return HomeScreen();
       case AppPage.mealDetail:
@@ -112,6 +128,8 @@ class _AppShellState extends State<AppShell> {
       AppPage.login,
       AppPage.signup,
       AppPage.verification,
+      AppPage.forgotPassword,
+      AppPage.resetPassword,
       AppPage.checkout,
       AppPage.orderConfirmation,
     ].contains(currentPage);

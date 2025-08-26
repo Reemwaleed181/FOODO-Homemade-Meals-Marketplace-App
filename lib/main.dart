@@ -9,6 +9,7 @@ import 'services/api_service.dart';
 import 'services/storage_service.dart';
 import 'screens/app_shell.dart';
 import 'config/app_config.dart';
+import 'theme/app_colors.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,23 +27,35 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(
-          create:
-              (context) => AuthProvider(
-                apiService: apiService,
-                storageService: storageService,
-                navigationProvider: Provider.of<NavigationProvider>(
-                  context,
-                  listen: false,
-                ),
-              ),
+          create: (context) => AuthProvider(
+            apiService: apiService,
+            storageService: storageService,
+            navigationProvider: context.read<NavigationProvider>(),
+          ),
         ),
+
         ChangeNotifierProvider(create: (_) => MealProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => AppState()),
       ],
       child: MaterialApp(
         title: 'Foodo App',
-        theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+        theme: ThemeData(
+          primarySwatch: Colors.teal,
+          primaryColor: AppColors.primary,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: AppColors.primary,
+            primary: AppColors.primary,
+            secondary: AppColors.secondary,
+            surface: AppColors.surface,
+            background: AppColors.backgroundPrimary,
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
+            onSurface: AppColors.textPrimary,
+            onBackground: AppColors.textPrimary,
+          ),
+          useMaterial3: true,
+        ),
         home: AppShell(),
         debugShowCheckedModeBanner: false,
       ),
