@@ -1,17 +1,26 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from .models import User
+from .models import User, Address
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = ('id', 'type', 'label', 'full_name', 'street_address', 
+                 'city', 'zip_code', 'phone', 'instructions', 'is_default',
+                 'created_at', 'updated_at')
+        read_only_fields = ('id', 'created_at', 'updated_at')
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()  # Add computed name field
+    addresses = AddressSerializer(many=True, read_only=True)
     
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'name', 'phone', 'address', 
+        fields = ('id', 'username', 'email', 'name', 'first_name', 'last_name', 'phone', 'address', 
                  'city', 'zip_code', 'is_chef', 'chef_bio', 
-                 'chef_rating', 'total_orders', 'is_verified')
-        read_only_fields = ('id', 'is_chef', 'is_verified')
-    
+                 'chef_rating', 'total_orders', 'is_verified', 'profile_picture', 'addresses')
+        read_only_fields = ('id', 'is_chef', 'is_verified', 'addresses', 'name')
+
     def get_name(self, obj):
         """Combine first_name and last_name or return username"""
         if obj.first_name and obj.last_name:
@@ -64,7 +73,7 @@ class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'password', 'name', 'phone', 
-                 'address', 'city', 'zip_code')
+                 'address', 'city', 'zip_code', 'is_chef', 'profile_picture')
 
     def create(self, validated_data):
         # Extract name and use it as username
@@ -90,10 +99,11 @@ class SignupSerializer(serializers.ModelSerializer):
             address=validated_data.get('address', ''),
             city=validated_data.get('city', ''),
             zip_code=validated_data.get('zip_code', ''),
+            profile_picture=validated_data.get('profile_picture', ''),
             # Ensure user is active and properly configured
             is_active=True,  # User is active by default
             is_verified=False,  # Email verification required
-            is_chef=False,  # Not a chef by default
+            is_chef=validated_data.get('is_chef', False),  # Chef status from signup
             is_staff=False,  # Not admin staff by default
             is_superuser=False,  # Not superuser by default
         )

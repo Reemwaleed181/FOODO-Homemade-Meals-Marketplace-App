@@ -15,12 +15,39 @@ class User(AbstractUser):
     chef_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
     total_orders = models.IntegerField(default=0)
     is_verified = models.BooleanField(default=False)
+    profile_picture = models.CharField(max_length=255, blank=True, null=True, help_text='Path to profile picture image')
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
     def __str__(self):
         return self.email
+
+class Address(models.Model):
+    TYPE_CHOICES = (
+        ('home', 'Home'),
+        ('work', 'Work'),
+        ('other', 'Other'),
+    )
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, default='home')
+    label = models.CharField(max_length=100)
+    full_name = models.CharField(max_length=255)
+    street_address = models.TextField()
+    city = models.CharField(max_length=100)
+    zip_code = models.CharField(max_length=10)
+    phone = models.CharField(max_length=15)
+    instructions = models.TextField(blank=True, null=True)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-is_default', '-created_at']
+    
+    def __str__(self):
+        return f"{self.label} - {self.user.email}"
 
 class OTP(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -13,3 +13,6 @@ PyJWT==2.10.1
 django-cors-headers==4.7.0
 
 Pillow==11.3.0
+google-auth==2.34.0
+google-auth-oauthlib==1.2.1
+requests==2.32.3

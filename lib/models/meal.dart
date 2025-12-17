@@ -36,6 +36,25 @@ class Nutrition {
       sugar: json['sugar'],
     );
   }
+
+  // Factory method for API data (from Django backend)
+  factory Nutrition.fromApiJson(Map<String, dynamic> json) {
+    int toInt(dynamic value) {
+      if (value == null) return 0;
+      if (value is int) return value;
+      if (value is double) return value.toInt();
+      return int.tryParse(value.toString()) ?? 0;
+    }
+
+    return Nutrition(
+      calories: toInt(json['calories']),
+      protein: toInt(json['protein']),
+      carbs: toInt(json['carbs']),
+      fat: toInt(json['fat']),
+      fiber: toInt(json['fiber']),
+      sugar: toInt(json['sugar']),
+    );
+  }
 }
 
 class Meal {
@@ -176,6 +195,34 @@ class Meal {
       allergens: List<String>.from(json['allergens']),
       createdAt: DateTime.parse(json['createdAt']),
       isActive: json['isActive'],
+    );
+  }
+
+  // Factory method for API data (from Django backend)
+  factory Meal.fromApiJson(Map<String, dynamic> json) {
+    return Meal(
+      id: json['id'].toString(),
+      name: json['name'],
+      description: json['description'],
+      chef: json['chef']['first_name'] + ' ' + json['chef']['last_name'],
+      chefId: json['chef']['id'].toString(),
+      price: json['price']?.toDouble(),
+      image: json['image'], // This will be a URL from Django
+      prepTime: json['prep_time'],
+      portionSize: json['portion_size'],
+      rating: json['rating']?.toDouble() ?? 0.0,
+      orderCount: json['order_count'] ?? 0,
+      tags: List<String>.from(json['tags'] ?? []),
+      isVegetarian: json['is_vegetarian'] ?? false,
+      isVegan: json['is_vegan'] ?? false,
+      isGlutenFree: json['is_gluten_free'] ?? false,
+      nutrition: json['nutrition'] != null 
+          ? Nutrition.fromApiJson(json['nutrition'])
+          : Nutrition(calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, sugar: 0),
+      ingredients: List<String>.from(json['ingredients'] ?? []),
+      allergens: List<String>.from(json['allergens'] ?? []),
+      createdAt: DateTime.parse(json['created_at']),
+      isActive: json['is_active'] ?? true,
     );
   }
 }

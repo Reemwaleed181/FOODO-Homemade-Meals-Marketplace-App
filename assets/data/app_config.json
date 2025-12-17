@@ -39,40 +39,60 @@
   ],
   "categories": [
     {
-      "id": "mediterranean",
-      "name": "Mediterranean",
-      "icon": "restaurant",
-      "color": "#FF6B35"
+      "id": "breakfast",
+      "name": "Breakfast",
+      "icon": "breakfast_dining",
+      "color": "#FFB74D",
+      "image": "images/breakfast.jpg"
+    },
+    {
+      "id": "lunch",
+      "name": "Lunch",
+      "icon": "lunch_dining",
+      "color": "#4CAF50",
+      "image": "images/lunch.jpg"
+    },
+    {
+      "id": "dinner",
+      "name": "Dinner",
+      "icon": "dinner_dining",
+      "color": "#5C6BC0",
+      "image": "images/dinner.jpg"
+    },
+    {
+      "id": "dessert",
+      "name": "Dessert",
+      "icon": "cake",
+      "color": "#E91E63",
+      "image": "images/deserts.jpg"
     },
     {
       "id": "asian",
       "name": "Asian",
       "icon": "restaurant",
-      "color": "#4CAF50"
-    },
-    {
-      "id": "italian",
-      "name": "Italian",
-      "icon": "restaurant",
-      "color": "#2196F3"
-    },
-    {
-      "id": "indian",
-      "name": "Indian",
-      "icon": "restaurant",
-      "color": "#FF9800"
+      "color": "#4CAF50",
+      "image": "images/asian food.jpg"
     },
     {
       "id": "healthy",
       "name": "Healthy",
       "icon": "favorite",
-      "color": "#4CAF50"
+      "color": "#4CAF50",
+      "image": "images/healthy food.jpg"
     },
     {
-      "id": "comfort",
-      "name": "Comfort Food",
-      "icon": "home",
-      "color": "#9C27B0"
+      "id": "italian",
+      "name": "Italian",
+      "icon": "restaurant",
+      "color": "#2196F3",
+      "image": "images/italian food.jpg"
+    },
+    {
+      "id": "indian",
+      "name": "Indian",
+      "icon": "restaurant",
+      "color": "#FF9800",
+      "image": "images/indian food.jpg"
     }
   ],
   "paymentMethods": [

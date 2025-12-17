@@ -1,12 +1,14 @@
 import 'package:flutter/foundation.dart';
 
 enum AppPage {
-  welcome,
+  onboarding,
+  authSelection,
   login,
   signup,
   verification,
   forgotPassword,
   resetPassword,
+  profileSelection,
   home,
   mealDetail,
   profile,
@@ -20,7 +22,7 @@ enum AppPage {
 }
 
 class NavigationProvider with ChangeNotifier {
-  AppPage _currentPage = AppPage.welcome;
+  AppPage _currentPage = AppPage.authSelection;
   Map<String, dynamic> _pageData = {};
 
   AppPage get currentPage => _currentPage;
@@ -35,8 +37,8 @@ class NavigationProvider with ChangeNotifier {
   }
 
   void goBack() {
-    if (_currentPage != AppPage.welcome) {
-      navigateTo(AppPage.welcome);
+    if (_currentPage != AppPage.authSelection) {
+      navigateTo(AppPage.authSelection);
     }
   }
 }

@@ -26,13 +26,7 @@ class BottomNavigation extends StatelessWidget {
         badgeCount: cartProvider.itemCount,
       ),
       NavItem(page: AppPage.profile, icon: Icons.person, label: 'Profile'),
-      NavItem(
-        page: AppPage.delivery,
-        icon: Icons.local_shipping,
-        label: 'Delivery',
-      ),
-      NavItem(page: AppPage.payment, icon: Icons.credit_card, label: 'Payment'),
-      NavItem(page: AppPage.welcome, icon: Icons.logout, label: 'Logout'),
+      NavItem(page: AppPage.authSelection, icon: Icons.logout, label: 'Logout'),
     ];
 
     final navItems = user?.isChef ?? false ? _chefNavItems : customerNavItems;
@@ -53,25 +47,24 @@ class BottomNavigation extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children:
                 navItems.map((item) {
                   final isActive = currentPage == item.page;
 
                   return GestureDetector(
                     onTap: () {
-                      if (item.page == AppPage.welcome) {
+                      if (item.page == AppPage.authSelection) {
                         authProvider.logout();
                         context.read<CartProvider>().clearCart();
-                        navigationProvider.navigateTo(AppPage.welcome);
                       } else {
                         navigationProvider.navigateTo(item.page);
                       }
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 12,
+                        vertical: 6,
+                        horizontal: 8,
                       ),
                       decoration: BoxDecoration(
                         color: isActive ? AppColors.navSelected : Colors.transparent,
@@ -138,16 +131,16 @@ class BottomNavigation extends StatelessWidget {
   }
 
   static const List<NavItem> _chefNavItems = [
-    NavItem(page: AppPage.home, icon: Icons.home, label: 'Home'),
     NavItem(
       page: AppPage.chefDashboard,
-      icon: Icons.restaurant,
+      icon: Icons.dashboard,
       label: 'Dashboard',
     ),
-    NavItem(page: AppPage.sellMeal, icon: Icons.add, label: 'Add Meal'),
+    NavItem(page: AppPage.sellMeal, icon: Icons.add_circle, label: 'Add Meal'),
+    NavItem(page: AppPage.home, icon: Icons.shopping_bag, label: 'Buying'),
     NavItem(page: AppPage.cart, icon: Icons.shopping_cart, label: 'Cart'),
     NavItem(page: AppPage.profile, icon: Icons.person, label: 'Profile'),
-    NavItem(page: AppPage.welcome, icon: Icons.logout, label: 'Logout'),
+    NavItem(page: AppPage.authSelection, icon: Icons.logout, label: 'Logout'),
   ];
 }
 

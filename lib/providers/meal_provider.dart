@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/meal.dart';
 import '../services/data_service.dart';
+import '../services/api_service.dart';
 
 class MealProvider extends ChangeNotifier {
   List<Meal> _allMeals = [];
@@ -49,25 +50,71 @@ class MealProvider extends ChangeNotifier {
         case 'gluten-free':
           meals = meals.where((meal) => meal.isGlutenFree).toList();
           break;
+        case 'high-protein':
+          meals = meals.where((meal) => meal.nutrition.protein >= 25).toList();
+          break;
+        case 'low-calorie':
+          meals = meals.where((meal) => meal.nutrition.calories <= 400).toList();
+          break;
+        case 'dairy-free':
+          meals = meals.where((meal) => !meal.allergens.any((allergen) => 
+            allergen.toLowerCase().contains('dairy') || 
+            allergen.toLowerCase().contains('milk'))).toList();
+          break;
+        case 'nut-free':
+          meals = meals.where((meal) => !meal.allergens.any((allergen) => 
+            allergen.toLowerCase().contains('nut') || 
+            allergen.toLowerCase().contains('peanut') ||
+            allergen.toLowerCase().contains('almond'))).toList();
+          break;
+        case 'keto':
+          meals = meals.where((meal) => 
+            meal.nutrition.carbs <= 20 && 
+            meal.nutrition.fat >= 15).toList();
+          break;
       }
     }
 
     return meals;
   }
 
-  // Load all meals from JSON data
+  // Load all meals from API (with fallback to JSON data)
   Future<void> loadMeals() async {
     _isLoading = true;
     // Use microtask to avoid calling notifyListeners during build
     Future.microtask(() => notifyListeners());
 
     try {
-      final dataService = DataService.instance;
-      _allMeals = await dataService.getAllMeals();
-      _featuredMeals = await dataService.getFrequentlyOrderedMeals();
+      // Try to load from API first
+      _allMeals = await ApiService.getAllMeals();
+      
+      if (_allMeals.isEmpty) {
+        // Fallback to JSON data if API fails
+        print('API failed, falling back to JSON data');
+        final dataService = DataService.instance;
+        _allMeals = await dataService.getAllMeals();
+        _featuredMeals = await dataService.getFrequentlyOrderedMeals();
+      } else {
+        // Use API data - get featured meals (top rated/ordered)
+        _featuredMeals = _allMeals
+            .where((meal) => meal.isActive)
+            .toList()
+          ..sort((a, b) => b.orderCount.compareTo(a.orderCount));
+        _featuredMeals = _featuredMeals.take(4).toList();
+      }
+      
       _communityMeals = _allMeals.where((meal) => meal.isActive).toList();
     } catch (e) {
       print('Error loading meals: $e');
+      // Final fallback to JSON data
+      try {
+        final dataService = DataService.instance;
+        _allMeals = await dataService.getAllMeals();
+        _featuredMeals = await dataService.getFrequentlyOrderedMeals();
+        _communityMeals = _allMeals.where((meal) => meal.isActive).toList();
+      } catch (fallbackError) {
+        print('Fallback also failed: $fallbackError');
+      }
     } finally {
       _isLoading = false;
       // Use microtask to avoid calling notifyListeners during build

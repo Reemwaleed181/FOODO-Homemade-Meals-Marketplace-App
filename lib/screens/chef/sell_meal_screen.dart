@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
 import '../../providers/navigation_provider.dart';
 import '../../models/meal.dart';
-import '../../models/user.dart';
+
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_input.dart';
-import '../../widgets/custom_badge.dart';
+
 import '../../widgets/bottom_navigation.dart';
 
 class SellMealScreen extends StatefulWidget {
@@ -31,13 +31,7 @@ class _SellMealScreenState extends State<SellMealScreen> {
   final List<String> _tags = [];
   final List<String> _ingredients = [''];
   final List<String> _selectedAllergens = [];
-  final List<String> _predefinedTags = [
-    'Italian', 'Mexican', 'Asian', 'Mediterranean', 'Indian', 'American',
-    'Healthy', 'Comfort Food', 'Spicy', 'Sweet', 'Protein-Rich', 'Low-Carb',
-  ];
-  final List<String> _commonAllergens = [
-    'Nuts', 'Dairy', 'Eggs', 'Soy', 'Gluten', 'Shellfish', 'Fish', 'Sesame'
-  ];
+
 
   bool _isVegetarian = false;
   bool _isVegan = false;
@@ -63,39 +57,7 @@ class _SellMealScreenState extends State<SellMealScreen> {
     super.dispose();
   }
 
-  void _addTag(String tag) {
-    if (tag.isNotEmpty && !_tags.contains(tag)) {
-      setState(() => _tags.add(tag));
-    }
-  }
 
-  void _removeTag(String tag) {
-    setState(() => _tags.remove(tag));
-  }
-
-  void _updateIngredient(int index, String value) {
-    setState(() => _ingredients[index] = value);
-  }
-
-  void _addIngredient() {
-    setState(() => _ingredients.add(''));
-  }
-
-  void _removeIngredient(int index) {
-    if (_ingredients.length > 1) {
-      setState(() => _ingredients.removeAt(index));
-    }
-  }
-
-  void _toggleAllergen(String allergen) {
-    setState(() {
-      if (_selectedAllergens.contains(allergen)) {
-        _selectedAllergens.remove(allergen);
-      } else {
-        _selectedAllergens.add(allergen);
-      }
-    });
-  }
 
   Future<void> _submitMeal() async {
     if (_nameController.text.isEmpty ||

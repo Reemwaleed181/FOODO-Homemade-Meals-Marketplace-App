@@ -22,6 +22,12 @@ class Order(models.Model):
     eta = models.CharField(max_length=50)
     delivery_notes = models.TextField(blank=True)
     is_express = models.BooleanField(default=False)
+    # Delivery address fields
+    delivery_name = models.CharField(max_length=255, blank=True)
+    delivery_street = models.TextField(blank=True)
+    delivery_city = models.CharField(max_length=100, blank=True)
+    delivery_zip_code = models.CharField(max_length=10, blank=True)
+    delivery_phone = models.CharField(max_length=15, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

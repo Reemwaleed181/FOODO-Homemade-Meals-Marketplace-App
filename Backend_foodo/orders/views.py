@@ -23,6 +23,14 @@ class OrderViewSet(viewsets.ModelViewSet):
         delivery_notes = request.data.get('delivery_notes', '')
         is_express = request.data.get('express', False)
         
+        # Extract delivery address (optional, can be from address object or individual fields)
+        delivery_address = request.data.get('delivery_address', {})
+        delivery_name = delivery_address.get('fullName') or delivery_address.get('full_name', '')
+        delivery_street = delivery_address.get('streetAddress') or delivery_address.get('street_address', '')
+        delivery_city = delivery_address.get('city', '')
+        delivery_zip_code = delivery_address.get('zipCode') or delivery_address.get('zip_code', '')
+        delivery_phone = delivery_address.get('phone', '')
+        
         # Calculate order totals
         subtotal = 0
         order_items = []
@@ -65,6 +73,11 @@ class OrderViewSet(viewsets.ModelViewSet):
             total=total,
             delivery_notes=delivery_notes,
             is_express=is_express,
+            delivery_name=delivery_name,
+            delivery_street=delivery_street,
+            delivery_city=delivery_city,
+            delivery_zip_code=delivery_zip_code,
+            delivery_phone=delivery_phone,
             eta="30-45 minutes" if not is_express else "15-25 minutes"
         )
         

@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/address_provider.dart';
 import '../../providers/navigation_provider.dart';
+import '../../models/address.dart';
 import '../../theme/app_colors.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({super.key});
+  final Map<String, dynamic>? initialData;
+  
+  const SignupScreen({super.key, this.initialData});
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMixin {
+class _SignupScreenState extends State<SignupScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -21,12 +26,13 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
   final _addressController = TextEditingController();
   final _cityController = TextEditingController();
   final _zipCodeController = TextEditingController();
-  
+
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
+  bool _isChef = false;
   int _currentStep = 0;
-  
+
   late AnimationController _headerAnimationController;
   late AnimationController _formAnimationController;
   late AnimationController _buttonAnimationController;
@@ -37,6 +43,14 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
+    // Set chef option if provided in initial data
+    if (widget.initialData != null && widget.initialData!['isChef'] == true) {
+      _isChef = true;
+    }
+    // Pre-fill email if provided
+    if (widget.initialData != null && widget.initialData!['email'] != null) {
+      _emailController.text = widget.initialData!['email'];
+    }
     _initializeAnimations();
   }
 
@@ -45,40 +59,37 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _formAnimationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _buttonAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
-    _headerSlideAnimation = Tween<double>(
-      begin: -1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _headerAnimationController,
-      curve: Curves.elasticOut,
-    ));
+    _headerSlideAnimation = Tween<double>(begin: -1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _headerAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
 
-    _formFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _formAnimationController,
-      curve: Curves.easeInOut,
-    ));
+    _formFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _formAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
 
-    _buttonScaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _buttonAnimationController,
-      curve: Curves.elasticOut,
-    ));
+    _buttonScaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _buttonAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
 
     _headerAnimationController.forward();
     Future.delayed(const Duration(milliseconds: 400), () {
@@ -128,15 +139,42 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     setState(() => _isLoading = true);
 
     try {
+      final phone = _phoneController.text.trim();
+      final address = _addressController.text.trim();
+      final city = _cityController.text.trim();
+      final zipCode = _zipCodeController.text.trim();
+
       await context.read<AuthProvider>().register(
         _nameController.text.trim(),
         _emailController.text.trim(),
         _passwordController.text,
-        phone: _phoneController.text.trim(),
-        address: _addressController.text.trim(),
-        city: _cityController.text.trim(),
-        zipCode: _zipCodeController.text.trim(),
+        phone: phone,
+        address: address,
+        city: city,
+        zipCode: zipCode,
+        isChef: _isChef,
       );
+
+      // Save initial address if provided
+      if (address.isNotEmpty &&
+          city.isNotEmpty &&
+          zipCode.isNotEmpty &&
+          phone.isNotEmpty) {
+        final addressProvider = context.read<AddressProvider>();
+        final initialAddress = Address(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          type: 'home',
+          label: 'Home',
+          fullName: _nameController.text.trim(),
+          streetAddress: address,
+          city: city,
+          zipCode: zipCode,
+          phone: phone,
+          isDefault: true,
+        );
+        await addressProvider.addAddress(initialAddress);
+      }
+
       // Navigation is handled inside AuthProvider.register()
     } catch (e) {
       if (mounted) {
@@ -151,7 +189,9 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
             ),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -169,23 +209,27 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
         children: List.generate(4, (index) {
           bool isActive = index <= _currentStep;
           bool isCompleted = index < _currentStep;
-          
+
           return Expanded(
             child: Container(
               margin: EdgeInsets.only(right: index < 3 ? 8 : 0),
               child: Row(
-              children: [
+                children: [
                   Expanded(
                     child: Container(
                       height: 4,
-                  decoration: BoxDecoration(
+                      decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(2),
-                        gradient: isActive
-                            ? LinearGradient(
-                                colors: [AppColors.primary, AppColors.primaryDark],
-                              )
-                            : null,
-                                                 color: isActive ? null : AppColors.borderPrimary,
+                        gradient:
+                            isActive
+                                ? LinearGradient(
+                                  colors: [
+                                    AppColors.primary,
+                                    AppColors.primaryDark,
+                                  ],
+                                )
+                                : null,
+                        color: isActive ? null : AppColors.borderPrimary,
                       ),
                     ),
                   ),
@@ -196,15 +240,17 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                       margin: const EdgeInsets.only(left: 8),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                                                 color: isCompleted 
-                             ? AppColors.primary 
-                             : isActive 
-                                 ? AppColors.primary 
-                                 : AppColors.borderPrimary,
+                        color:
+                            isCompleted
+                                ? AppColors.primary
+                                : isActive
+                                ? AppColors.primary
+                                : AppColors.borderPrimary,
                       ),
-                      child: isCompleted
-                          ? Icon(Icons.check, size: 8, color: Colors.white)
-                          : null,
+                      child:
+                          isCompleted
+                              ? Icon(Icons.check, size: 8, color: Colors.white)
+                              : null,
                     ),
                 ],
               ),
@@ -247,38 +293,106 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
 
   Widget _buildPersonalInfoStep() {
     return Column(
-                        children: [
+      children: [
         _buildAnimatedTextField(
-                            controller: _nameController,
+          controller: _nameController,
           label: 'Full Name',
           icon: Icons.person,
-                            keyboardType: TextInputType.name,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your name';
-                              }
-                              if (value.trim().length < 2) {
-                                return 'Name must be at least 2 characters';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
+          keyboardType: TextInputType.name,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your name';
+            }
+            if (value.trim().length < 2) {
+              return 'Name must be at least 2 characters';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 16),
         _buildAnimatedTextField(
-                            controller: _emailController,
+          controller: _emailController,
           label: 'Email Address',
           icon: Icons.email,
-                            keyboardType: TextInputType.emailAddress,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
-                              }
-                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                                return 'Please enter a valid email';
-                              }
-                              return null;
-                            },
+          keyboardType: TextInputType.emailAddress,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your email';
+            }
+            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+              return 'Please enter a valid email';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 24),
+        
+        // Chef Selection
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _isChef ? AppColors.primary : AppColors.borderPrimary,
+              width: _isChef ? 2 : 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.restaurant,
+                      color: AppColors.primary,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'I want to sell meals',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
                           ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Join as a chef to start selling your homemade meals',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Switch(
+                    value: _isChef,
+                    onChanged: (value) {
+                      setState(() {
+                        _isChef = value;
+                      });
+                    },
+                    activeColor: AppColors.primary,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -287,20 +401,20 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     return Column(
       children: [
         _buildAnimatedTextField(
-                            controller: _phoneController,
+          controller: _phoneController,
           label: 'Mobile Number',
           icon: Icons.phone,
-                            keyboardType: TextInputType.phone,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your mobile number';
-                              }
-                              if (value.trim().length < 7) {
-                                return 'Please enter a valid mobile number';
-                              }
-                              return null;
-                            },
-                          ),
+          keyboardType: TextInputType.phone,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your mobile number';
+            }
+            if (value.trim().length < 7) {
+              return 'Please enter a valid mobile number';
+            }
+            return null;
+          },
+        ),
       ],
     );
   }
@@ -309,48 +423,48 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     return Column(
       children: [
         _buildAnimatedTextField(
-                            controller: _addressController,
+          controller: _addressController,
           label: 'Address',
           icon: Icons.location_on,
-                            keyboardType: TextInputType.streetAddress,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your address';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
+          keyboardType: TextInputType.streetAddress,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your address';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
               child: _buildAnimatedTextField(
-                            controller: _cityController,
+                controller: _cityController,
                 label: 'City',
                 icon: Icons.location_city,
-                            keyboardType: TextInputType.text,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your city';
-                              }
-                              return null;
-                            },
-                          ),
+                keyboardType: TextInputType.text,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your city';
+                  }
+                  return null;
+                },
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _buildAnimatedTextField(
-                            controller: _zipCodeController,
+                controller: _zipCodeController,
                 label: 'Zip Code',
                 icon: Icons.pin_drop,
-                            keyboardType: TextInputType.text,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your zip code';
-                              }
-                              return null;
-                            },
-                          ),
+                keyboardType: TextInputType.text,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your zip code';
+                  }
+                  return null;
+                },
+              ),
             ),
           ],
         ),
@@ -362,53 +476,53 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     return Column(
       children: [
         _buildAnimatedTextField(
-                            controller: _passwordController,
+          controller: _passwordController,
           label: 'Password',
           icon: Icons.lock,
           isPassword: true,
           isPasswordVisible: _isPasswordVisible,
           onPasswordToggle: () {
-                                  setState(() {
-                                    _isPasswordVisible = !_isPasswordVisible;
-                                  });
-                                },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
-                              }
-                              if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
+            setState(() {
+              _isPasswordVisible = !_isPasswordVisible;
+            });
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your password';
+            }
+            if (value.length < 6) {
+              return 'Password must be at least 6 characters';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 16),
         _buildAnimatedTextField(
-                            controller: _confirmPasswordController,
+          controller: _confirmPasswordController,
           label: 'Confirm Password',
           icon: Icons.lock_outline,
           isPassword: true,
           isPasswordVisible: _isConfirmPasswordVisible,
           onPasswordToggle: () {
-                                  setState(() {
-                                    _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                                  });
-                                },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please confirm your password';
-                              }
-                              if (value != _passwordController.text) {
-                                return 'Passwords do not match';
-                              }
-                              return null;
-                            },
-                          ),
+            setState(() {
+              _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+            });
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please confirm your password';
+            }
+            if (value != _passwordController.text) {
+              return 'Passwords do not match';
+            }
+            return null;
+          },
+        ),
       ],
     );
   }
 
-    Widget _buildAnimatedTextField({
+  Widget _buildAnimatedTextField({
     required TextEditingController controller,
     required String label,
     required IconData icon,
@@ -437,16 +551,19 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
             ),
             child: Icon(icon, color: AppColors.primary, size: 14),
           ),
-          suffixIcon: isPassword
-              ? IconButton(
-                  icon: Icon(
-                    isPasswordVisible ?? false ? Icons.visibility : Icons.visibility_off,
-                    color: AppColors.textSecondary,
-                    size: 16,
-                  ),
-                  onPressed: onPasswordToggle,
-                )
-              : null,
+          suffixIcon:
+              isPassword
+                  ? IconButton(
+                    icon: Icon(
+                      isPasswordVisible ?? false
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: AppColors.textSecondary,
+                      size: 16,
+                    ),
+                    onPressed: onPasswordToggle,
+                  )
+                  : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(color: AppColors.borderPrimary),
@@ -465,7 +582,10 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
           ),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 10,
+          ),
         ),
         style: TextStyle(fontSize: 13),
         validator: validator,
@@ -473,7 +593,138 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     );
   }
 
-    Widget _buildNavigationButtons() {
+  Widget _buildGoogleSignInButton() {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    
+    return Column(
+      children: [
+        // Divider with "OR"
+        Row(
+          children: [
+            Expanded(
+              child: Divider(
+                color: AppColors.borderPrimary,
+                thickness: 1,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'OR',
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Divider(
+                color: AppColors.borderPrimary,
+                thickness: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        // Google Sign-In Button
+        Container(
+          height: 50,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.borderPrimary),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: _isLoading ? null : () async {
+              try {
+                setState(() => _isLoading = true);
+                await authProvider.signInWithGoogle();
+                // Navigation is handled in AuthProvider
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: Colors.white),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text('Google sign-in failed: ${e.toString()}'),
+                          ),
+                        ],
+                      ),
+                      backgroundColor: AppColors.error,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              } finally {
+                if (mounted) {
+                  setState(() => _isLoading = false);
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: AppColors.textPrimary,
+              shadowColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Google Icon (using colored container as placeholder)
+                Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.red,
+                        Colors.blue,
+                        Colors.yellow,
+                        Colors.green,
+                      ],
+                      stops: const [0.0, 0.33, 0.66, 1.0],
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.g_mobiledata,
+                    size: 16,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Continue with Google',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNavigationButtons() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Row(
@@ -505,7 +756,10 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                       Flexible(
                         child: Text(
                           'Previous',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -523,71 +777,84 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                   scale: _buttonScaleAnimation.value,
                   child: Container(
                     height: 48,
-                            decoration: BoxDecoration(
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                              gradient: LinearGradient(
-                                colors: [
-                                  AppColors.primary,
-                                  AppColors.primaryDark,
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withOpacity(0.3),
+                      gradient: LinearGradient(
+                        colors: [AppColors.primary, AppColors.primaryDark],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: ElevatedButton(
-                      onPressed: _isLoading ? null : (_currentStep < 3 ? _nextStep : _handleSignup),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                foregroundColor: Colors.white,
-                                shadowColor: Colors.transparent,
-                                shape: RoundedRectangleBorder(
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed:
+                          _isLoading
+                              ? null
+                              : (_currentStep < 3 ? _nextStep : _handleSignup),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: _isLoading
-                                  ? Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        const SizedBox(
-                                  height: 18,
-                                  width: 18,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                          ),
-                                        ),
-                                const SizedBox(width: 8),
-                                        Text(
-                                          'Creating Account...',
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                                        ),
-                                      ],
-                                    )
-                                  : Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                Icon(
-                                  _currentStep < 3 ? Icons.arrow_forward : Icons.person_add,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    _currentStep < 3 ? 'Next' : 'Create Account',
-                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                                    overflow: TextOverflow.ellipsis,
+                        ),
+                        elevation: 0,
+                      ),
+                      child:
+                          _isLoading
+                              ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(
+                                    height: 18,
+                                    width: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Creating Account...',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              )
+                              : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    _currentStep < 3
+                                        ? Icons.arrow_forward
+                                        : Icons.person_add,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      _currentStep < 3
+                                          ? 'Next'
+                                          : 'Create Account',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
                     ),
                   ),
                 );
@@ -599,7 +866,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
     );
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -608,10 +875,7 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              AppColors.backgroundSecondary,
-              Colors.white,
-            ],
+            colors: [AppColors.backgroundSecondary, Colors.white],
           ),
         ),
         child: SafeArea(
@@ -624,16 +888,16 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                   return Transform.translate(
                     offset: Offset(0, _headerSlideAnimation.value * 100),
                     child: Container(
-                      height: MediaQuery.of(context).viewInsets.bottom > 0 ? 120 : 180,
+                      height:
+                          MediaQuery.of(context).viewInsets.bottom > 0
+                              ? 120
+                              : 180,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [
-                            AppColors.primary,
-                            AppColors.primaryDark,
-                          ],
+                          colors: [AppColors.primary, AppColors.primaryDark],
                         ),
                         borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(80),
@@ -678,7 +942,9 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -689,42 +955,60 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
                                           color: Colors.white.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                         ),
                                         child: Icon(
                                           Icons.person_add_alt_1,
                                           color: Colors.white,
-                                          size: MediaQuery.of(context).viewInsets.bottom > 0 ? 20 : 28,
+                                          size:
+                                              MediaQuery.of(
+                                                        context,
+                                                      ).viewInsets.bottom >
+                                                      0
+                                                  ? 20
+                                                  : 28,
                                         ),
                                       ),
                                       const SizedBox(width: 16),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'Join Foodo',
                                               style: TextStyle(
                                                 color: Colors.white,
-                                                fontSize: MediaQuery.of(context).viewInsets.bottom > 0 ? 20 : 28,
+                                                fontSize:
+                                                    MediaQuery.of(context)
+                                                                .viewInsets
+                                                                .bottom >
+                                                            0
+                                                        ? 20
+                                                        : 28,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            if (MediaQuery.of(context).viewInsets.bottom == 0)
-                                        Text(
+                                            if (MediaQuery.of(
+                                                  context,
+                                                ).viewInsets.bottom ==
+                                                0)
+                                              Text(
                                                 'Create your account in ${4 - _currentStep} steps',
-                                          style: TextStyle(
+                                                style: TextStyle(
                                                   color: Colors.white70,
                                                   fontSize: 14,
                                                 ),
-                                          ),
+                                              ),
                                           ],
                                         ),
                                       ),
                                     ],
-                                        ),
-                                      ],
-                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -746,13 +1030,17 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                           left: 24,
                           right: 24,
                           top: 20,
-                          bottom: MediaQuery.of(context).viewInsets.bottom > 0 ? 100 : 24,
+                          bottom:
+                              MediaQuery.of(context).viewInsets.bottom > 0
+                                  ? 100
+                                  : 24,
                         ),
                         child: Form(
                           key: _formKey,
                           child: Column(
                             children: [
-                              if (MediaQuery.of(context).viewInsets.bottom == 0) ...[
+                              if (MediaQuery.of(context).viewInsets.bottom ==
+                                  0) ...[
                                 _buildStepIndicator(),
                                 _buildStepTitle(),
                                 const SizedBox(height: 24),
@@ -772,28 +1060,42 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                                 ),
                                 child: _buildStepContent(),
                               ),
+                              // Google Sign-In Button (only on first step)
+                              if (_currentStep == 0) ...[
+                                const SizedBox(height: 16),
+                                _buildGoogleSignInButton(),
+                                const SizedBox(height: 16),
+                              ],
                               const SizedBox(height: 24),
                               _buildNavigationButtons(),
-                              
+
                               // Account link - Inside the form container
                               const SizedBox(height: 8),
                               Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
                                   Text(
                                     'Already have an account? ',
                                     style: TextStyle(
-                                      color: AppColors.textSecondary, 
+                                      color: AppColors.textSecondary,
                                       fontSize: 12,
                                     ),
                                   ),
-                      GestureDetector(
-                        onTap: () => context.read<NavigationProvider>().navigateTo(AppPage.login),
+                                  GestureDetector(
+                                    onTap:
+                                        () => context
+                                            .read<NavigationProvider>()
+                                            .navigateTo(AppPage.login),
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 3,
+                                      ),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(6),
-                                        color: AppColors.primary.withOpacity(0.1),
+                                        color: AppColors.primary.withOpacity(
+                                          0.1,
+                                        ),
                                       ),
                                       child: Text(
                                         'Sign In',
@@ -804,18 +1106,18 @@ class _SignupScreenState extends State<SignupScreen> with TickerProviderStateMix
                                         ),
                                       ),
                                     ),
-                      ),
-                    ],
-                  ),
+                                  ),
+                                ],
+                              ),
                               const SizedBox(height: 1),
                               Text(
                                 'By signing up, you agree to our Terms of Service \n and Privacy Policy',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
                                   fontSize: 10,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ],
                           ),
                         ),

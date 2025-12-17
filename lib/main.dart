@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'providers/navigation_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/meal_provider.dart';
 import 'providers/cart_provider.dart';
+import 'providers/address_provider.dart';
 import 'models/app_state.dart';
-import 'services/api_service.dart';
 import 'services/storage_service.dart';
 import 'screens/app_shell.dart';
-import 'config/app_config.dart';
 import 'theme/app_colors.dart';
 
 void main() {
@@ -16,7 +16,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  final ApiService apiService = ApiService(baseUrl: AppConfig.djangoBaseUrl);
   final StorageService storageService = StorageService();
 
   MyApp({super.key});
@@ -27,15 +26,18 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(
-          create: (context) => AuthProvider(
-            apiService: apiService,
-            storageService: storageService,
-            navigationProvider: context.read<NavigationProvider>(),
-          ),
+          create:
+              (context) => AuthProvider(
+                storageService: storageService,
+                navigationProvider: context.read<NavigationProvider>(),
+              ),
         ),
 
         ChangeNotifierProvider(create: (_) => MealProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(
+          create: (context) => AddressProvider(storageService: storageService),
+        ),
         ChangeNotifierProvider(create: (_) => AppState()),
       ],
       child: MaterialApp(
@@ -54,6 +56,7 @@ class MyApp extends StatelessWidget {
             onSurface: AppColors.textPrimary,
             onBackground: AppColors.textPrimary,
           ),
+          textTheme: GoogleFonts.notoSansTextTheme(),
           useMaterial3: true,
         ),
         home: AppShell(),

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
 import '../../models/meal.dart';
-import '../../models/user.dart';
+import '../../providers/auth_provider.dart';
+import '../../theme/app_colors.dart';
+
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_badge.dart';
 import '../../widgets/image_with_fallback.dart';
@@ -15,12 +17,12 @@ class ChefDashboardScreen extends StatefulWidget {
 }
 
 class _ChefDashboardScreenState extends State<ChefDashboardScreen> {
-  int _selectedTab = 0;
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
     final appState = Provider.of<AppState>(context);
-    final user = appState.user;
+    final user = authProvider.user ?? appState.user;
     final userMeals =
         appState.userMeals.where((meal) => meal.chefId == user?.id).toList();
 
@@ -81,24 +83,89 @@ class _ChefDashboardScreenState extends State<ChefDashboardScreen> {
                 child: Column(
                   children: [
                     // Header
-                    Padding(
-                      padding: const EdgeInsets.all(16),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.primary,
+                            AppColors.primaryDark,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
                       child: Row(
                         children: [
-                          Text(
-                            'Chef Dashboard',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                          // Profile Picture or Icon
+                          Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2,
+                              ),
+                            ),
+                            child: ClipOval(
+                              child: user.profilePicture != null &&
+                                      user.profilePicture!.isNotEmpty
+                                  ? Image.asset(
+                                      user.profilePicture!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Container(
+                                          color: Colors.white.withOpacity(0.2),
+                                          child: Icon(
+                                            Icons.restaurant,
+                                            color: Colors.white,
+                                            size: 24,
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Container(
+                                      color: Colors.white.withOpacity(0.2),
+                                      child: Icon(
+                                        Icons.restaurant,
+                                        color: Colors.white,
+                                        size: 24,
+                                      ),
+                                    ),
                             ),
                           ),
-                          const Spacer(),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Welcome, ${user.name}',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Chef Dashboard',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                           // Foodo Logo
                           Image.asset(
                             'images/logo-removebg.png',
                             height: 40,
                             fit: BoxFit.contain,
+                            color: Colors.white,
+                            colorBlendMode: BlendMode.difference,
                           ),
                         ],
                       ),

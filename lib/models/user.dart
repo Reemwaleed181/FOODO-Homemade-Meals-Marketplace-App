@@ -14,6 +14,7 @@ class User {
   final double? chefRating;
   final int? totalOrders;
   final bool isVerified;
+  final String? profilePicture;
 
   User({
     required this.id,
@@ -29,6 +30,7 @@ class User {
     this.chefRating,
     this.totalOrders,
     this.isVerified = false,
+    this.profilePicture,
   });
 
   User copyWith({
@@ -45,6 +47,7 @@ class User {
     double? chefRating,
     int? totalOrders,
     bool? isVerified,
+    String? profilePicture,
   }) {
     return User(
       id: id ?? this.id,
@@ -60,6 +63,7 @@ class User {
       chefRating: chefRating ?? this.chefRating,
       totalOrders: totalOrders ?? this.totalOrders,
       isVerified: isVerified ?? this.isVerified,
+      profilePicture: profilePicture ?? this.profilePicture,
     );
   }
 
@@ -78,27 +82,57 @@ class User {
       'chefRating': chefRating,
       'totalOrders': totalOrders,
       'isVerified': isVerified,
+      'profilePicture': profilePicture,
     };
   }
 
+  // Helper function to safely convert to double
+  static double? _toDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      return double.tryParse(value);
+    }
+    return null;
+  }
+
+  // Helper function to safely convert to int
+  static int? _toInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) {
+      return int.tryParse(value);
+    }
+    return null;
+  }
+
   factory User.fromJson(Map<String, dynamic> json) {
+    // Convert ID to string if it's an integer (Django returns int IDs)
+    String id = '';
+    if (json['id'] != null) {
+      id = json['id'].toString();
+    }
+    
     return User(
-      id: json['id'] ?? '',
-      name: json['name'] ?? '',
+      id: id,
+      name: json['name'] ?? json['first_name'] ?? json['username'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
       address: json['address'] ?? '',
       city: json['city'] ?? '',
-      zipCode: json['zipCode'] ?? '',
+      zipCode: json['zipCode'] ?? json['zip_code'] ?? '',
       role: UserRole.values.firstWhere(
         (e) => e.toString() == 'UserRole.${json['role']}',
         orElse: () => UserRole.customer,
       ),
-      isChef: json['isChef'] ?? false,
-      chefBio: json['chefBio'],
-      chefRating: json['chefRating']?.toDouble(),
-      totalOrders: json['totalOrders'],
-      isVerified: json['isVerified'] ?? false,
+      isChef: json['isChef'] ?? json['is_chef'] ?? false,
+      chefBio: json['chefBio'] ?? json['chef_bio'],
+      chefRating: _toDouble(json['chefRating'] ?? json['chef_rating']),
+      totalOrders: _toInt(json['totalOrders'] ?? json['total_orders']),
+      isVerified: json['isVerified'] ?? json['is_verified'] ?? false,
+      profilePicture: json['profilePicture'] ?? json['profile_picture'],
     );
   }
 }

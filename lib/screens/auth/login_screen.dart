@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/navigation_provider.dart';
+import '../../models/app_state.dart';
 import '../../theme/app_colors.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -11,13 +12,14 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
-  
+
   late AnimationController _headerAnimationController;
   late AnimationController _formAnimationController;
   late AnimationController _buttonAnimationController;
@@ -36,40 +38,37 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _formAnimationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _buttonAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
-    _headerSlideAnimation = Tween<double>(
-      begin: -1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _headerAnimationController,
-      curve: Curves.elasticOut,
-    ));
+    _headerSlideAnimation = Tween<double>(begin: -1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _headerAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
 
-    _formFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _formAnimationController,
-      curve: Curves.easeInOut,
-    ));
+    _formFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _formAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
 
-    _buttonScaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _buttonAnimationController,
-      curve: Curves.elasticOut,
-    ));
+    _buttonScaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _buttonAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
 
     _headerAnimationController.forward();
     Future.delayed(const Duration(milliseconds: 400), () {
@@ -99,25 +98,34 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       );
 
       if (mounted) {
+        // Sync AppState with AuthProvider user
+        final authProvider = context.read<AuthProvider>();
+        final appState = context.read<AppState>();
+        if (authProvider.user != null && appState.user == null) {
+          appState.login(authProvider.user!);
+        }
+
         context.read<NavigationProvider>().navigateTo(AppPage.home);
       }
     } catch (e) {
       if (mounted) {
         String errorMessage = 'Login failed';
-        
+
         // Handle specific error cases
         if (e.toString().contains('not registered')) {
           errorMessage = 'This email is not registered. Please sign up first.';
         } else if (e.toString().contains('Invalid password')) {
           errorMessage = 'Invalid password. Please check your credentials.';
         } else if (e.toString().contains('account has been disabled')) {
-          errorMessage = 'Your account has been disabled. Please contact support.';
+          errorMessage =
+              'Your account has been disabled. Please contact support.';
         } else if (e.toString().contains('Server connection error')) {
-          errorMessage = 'Unable to connect to server. Please check your internet connection.';
+          errorMessage =
+              'Unable to connect to server. Please check your internet connection.';
         } else {
           errorMessage = 'Login failed: ${e.toString()}';
         }
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -129,7 +137,9 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
             ),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             duration: const Duration(seconds: 4),
             action: SnackBarAction(
               label: 'Sign Up',
@@ -177,16 +187,19 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
             ),
             child: Icon(icon, color: AppColors.primary, size: 14),
           ),
-          suffixIcon: isPassword
-              ? IconButton(
-                  icon: Icon(
-                    isPasswordVisible ?? false ? Icons.visibility : Icons.visibility_off,
-                    color: AppColors.textSecondary,
-                    size: 16,
-                  ),
-                  onPressed: onPasswordToggle,
-                )
-              : null,
+          suffixIcon:
+              isPassword
+                  ? IconButton(
+                    icon: Icon(
+                      isPasswordVisible ?? false
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: AppColors.textSecondary,
+                      size: 16,
+                    ),
+                    onPressed: onPasswordToggle,
+                  )
+                  : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(color: AppColors.borderPrimary),
@@ -205,7 +218,10 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
           ),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 10,
+          ),
         ),
         style: TextStyle(fontSize: 13),
         validator: validator,
@@ -225,10 +241,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               gradient: LinearGradient(
-                colors: [
-                  AppColors.primary,
-                  AppColors.primaryDark,
-                ],
+                colors: [AppColors.primary, AppColors.primaryDark],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -251,36 +264,45 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 ),
                 elevation: 0,
               ),
-              child: _isLoading
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              child:
+                  _isLoading
+                      ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Signing In...',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.login, size: 18),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Sign In',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Signing In...',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      )
+                      : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.login, size: 18),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Sign In',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
             ),
           ),
         );
@@ -297,10 +319,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              AppColors.backgroundSecondary,
-              Colors.white,
-            ],
+            colors: [AppColors.backgroundSecondary, Colors.white],
           ),
         ),
         child: SafeArea(
@@ -313,16 +332,16 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                   return Transform.translate(
                     offset: Offset(0, _headerSlideAnimation.value * 100),
                     child: Container(
-                      height: MediaQuery.of(context).viewInsets.bottom > 0 ? 120 : 180,
+                      height:
+                          MediaQuery.of(context).viewInsets.bottom > 0
+                              ? 120
+                              : 180,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [
-                            AppColors.primary,
-                            AppColors.primaryDark,
-                          ],
+                          colors: [AppColors.primary, AppColors.primaryDark],
                         ),
                         borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(80),
@@ -367,7 +386,9 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,28 +399,46 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
                                           color: Colors.white.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                         ),
                                         child: Icon(
                                           Icons.login,
                                           color: Colors.white,
-                                          size: MediaQuery.of(context).viewInsets.bottom > 0 ? 20 : 28,
+                                          size:
+                                              MediaQuery.of(
+                                                        context,
+                                                      ).viewInsets.bottom >
+                                                      0
+                                                  ? 20
+                                                  : 28,
                                         ),
                                       ),
                                       const SizedBox(width: 16),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'Welcome Back',
                                               style: TextStyle(
                                                 color: Colors.white,
-                                                fontSize: MediaQuery.of(context).viewInsets.bottom > 0 ? 20 : 28,
+                                                fontSize:
+                                                    MediaQuery.of(context)
+                                                                .viewInsets
+                                                                .bottom >
+                                                            0
+                                                        ? 20
+                                                        : 28,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            if (MediaQuery.of(context).viewInsets.bottom == 0)
+                                            if (MediaQuery.of(
+                                                  context,
+                                                ).viewInsets.bottom ==
+                                                0)
                                               Text(
                                                 'Sign in to your account',
                                                 style: TextStyle(
@@ -435,7 +474,10 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                           left: 24,
                           right: 24,
                           top: 48,
-                          bottom: MediaQuery.of(context).viewInsets.bottom > 0 ? 100 : 32,
+                          bottom:
+                              MediaQuery.of(context).viewInsets.bottom > 0
+                                  ? 100
+                                  : 32,
                         ),
                         child: Form(
                           key: _formKey,
@@ -465,7 +507,9 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                         if (value == null || value.isEmpty) {
                                           return 'Please enter your email';
                                         }
-                                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                        if (!RegExp(
+                                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                        ).hasMatch(value)) {
                                           return 'Please enter a valid email';
                                         }
                                         return null;
@@ -480,7 +524,8 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                       isPasswordVisible: _isPasswordVisible,
                                       onPasswordToggle: () {
                                         setState(() {
-                                          _isPasswordVisible = !_isPasswordVisible;
+                                          _isPasswordVisible =
+                                              !_isPasswordVisible;
                                         });
                                       },
                                       validator: (value) {
@@ -498,7 +543,11 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                                       alignment: Alignment.centerRight,
                                       child: GestureDetector(
                                         onTap: () {
-                                          context.read<NavigationProvider>().navigateTo(AppPage.forgotPassword);
+                                          context
+                                              .read<NavigationProvider>()
+                                              .navigateTo(
+                                                AppPage.forgotPassword,
+                                              );
                                         },
                                         child: Text(
                                           'Forgot Password?',
@@ -526,21 +575,30 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
               // Sign up link - Higher up on screen
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 50),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 50,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       "Don't have an account? ",
                       style: TextStyle(
-                        color: AppColors.textSecondary, 
+                        color: AppColors.textSecondary,
                         fontSize: 13,
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => context.read<NavigationProvider>().navigateTo(AppPage.signup),
+                      onTap:
+                          () => context.read<NavigationProvider>().navigateTo(
+                            AppPage.signup,
+                          ),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
                           color: AppColors.primary.withOpacity(0.1),
